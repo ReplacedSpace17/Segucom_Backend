@@ -13,7 +13,7 @@ const port = 3000;
 
 // Configura CORS
 const corsOptions = {
-  origin: ['https://segucom.mx', 'http://localhost:3001'],
+  origin: ['https://segucom.mx', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500'],
   optionsSuccessStatus: 200
 };
 
@@ -23,7 +23,6 @@ app.use(bodyParser.json({ limit: '20mb' }));
 app.use('/uploads', express.static('uploads'));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 
 // Configura la carpeta public para servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
@@ -51,6 +50,33 @@ app.use(expressCspHeader({
     } 
 }));  
 
+// Función para asegurarse de que la carpeta existe
+const ensureDirExists = (dir) => {
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+const storage = (folder) => multer.diskStorage({
+  destination: function (req, file, cb) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const uploadDir = path.join(__dirname, 'uploads', folder, year.toString(), month);
+
+    ensureDirExists(uploadDir);
+
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Asigna un nombre único al archivo
+  }
+});
+
+const uploadBoletines = multer({ storage: storage('boletines') });
+const uploadConsignas = multer({ storage: storage('consignas') });
+
+
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
 const { addUserPersonal, loginUser, updatePerfilElemento } = require('./Functions/Register/Module_Register');
 
@@ -58,7 +84,9 @@ const { addUserPersonal, loginUser, updatePerfilElemento } = require('./Function
 const { getGeocercas , getGeocercasID} = require('./Functions/Maps/Function_region');
 const { LocalizarElemento, UpdateUbicacion, LocalizarTodosElemento} = require('./Functions/Maps/Function_elemento');
 const {getPuntosVigilancia, getElementosAsignados, getPuntosVigilanciaByID} = require('./Functions/Maps/FunctionPuntoVigilancia');
+const { Console } = require('console');
 
+const { addImagePath, getImages} = require('./Functions/Images/Module_Images');
 //-------------------------------------------------------------> Endpoints App
 // Agregar un nuevo usuario
 app.post('/segucom/api/user', async (req, res) => {
@@ -72,14 +100,15 @@ app.post('/segucom/api/login', async (req, res) => {
   await loginUser(req, res, telefono, clave);
 });
 
-//actualizar perfil de un elemento
+// Actualizar perfil de un elemento
 app.put('/segucom/api/user/:id', async (req, res) => {
   const data = req.body;
   const id = req.params.id;
   await updatePerfilElemento(req, res, data, id);
 });
+
 //-------------------------------------------------------------> Endpoints Mapas
-// Obtener el perimetro de geocercas
+// Obtener el perímetro de geocercas
 app.get('/segucom/api/maps/geocercas', async (req, res) => {
   await getGeocercas(req, res);
 });
@@ -101,7 +130,7 @@ app.get('/segucom/api/maps/elementos/all', async (req, res) => {
   await LocalizarTodosElemento(req, res);
 });
 
-// Actualizar ubicacion de un elemento
+// Actualizar ubicación de un elemento
 app.put('/segucom/api/maps/elemento/:id', async (req, res) => {
   const id = req.params.id;
   const data = req.body;
@@ -144,6 +173,98 @@ app.get('/maps/vigilancia/punto', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaPuntoVigilancia.html'));
 });
 
+//-------------------------------------------------------------> Rutas de fotos
+
+app.post('/segucom/api/upload/boletines/:id', uploadBoletines.single('file'), async (req, res) => {
+  const id = req.params.id.toString(); // Asegúrate de que el ID sea una cadena
+  const file = req.file;
+  const description = req.body.description.toString(); // Asegúrate de que la descripción sea una cadena
+  
+  if (!file) {
+      return res.status(400).send({ message: 'Please upload a file.' });
+  }
+  
+  const filePath = path.relative(__dirname, file.path);
+  
+  try {
+      await addImagePath(id, filePath, 'Boletines', description);
+      console.log('(Boletines): Nueva imagen guardada: ' + filePath + ' ID: ' + id);
+      res.send({ message: 'File uploaded successfully to boletines', file: filePath, description });
+  } catch (error) {
+      console.error('Error al subir la imagen:', error);
+      res.status(500).send({ error: 'Error de servidor al agregar la imagen' });
+  }
+});
+
+
+
+app.post('/segucom/api/upload/consignas/:id', uploadConsignas.single('file'), async (req, res) => {
+  const id = req.params.id;
+  const file = req.file;
+  const description = req.body.description;
+  
+  if (!file) {
+      return res.status(400).send({ message: 'Please upload a file.' });
+  }
+  
+  const filePath = path.relative(__dirname, file.path);
+  
+  try {
+      await addImagePath(id, filePath, 'Consignas', description);
+      console.log('(Consignas): Nueva imagen guardada: ' + filePath + ' ID: ' + id);
+      res.send({ message: 'File uploaded successfully to consignas', file: filePath, description });
+  } catch (error) {
+      console.error('Error al subir la imagen:', error);
+      res.status(500).send({ error: 'Error de servidor al agregar la imagen' });
+  }
+});
+
+
+// Endpoint para obtener una imagen según el ID y categoría
+// Endpoint para obtener imágenes según el ID y categoría
+app.get('/segucom/api/images/:id/:category', async (req, res) => {
+  const connection = require('./SQL_CONECTION');
+  const id = req.params.id;
+  const category = req.params.category;
+
+  const query = `
+    SELECT * FROM IMAGES WHERE ID_registro = ? AND categoria = ?;
+  `;
+  
+  connection.query(query, [id, category], (error, results) => {
+    if (error) {
+      res.status(500).send(error);
+    } else if (results.length === 0) {
+      res.status(404).send({ message: 'Images not found' });
+    } else {
+      const images = results.map(row => ({
+        ID: row.ID_registro,
+        categoria: row.categoria,
+        descripcion: row.descripcion,
+        ruta: row.ruta
+      }));
+      console.log('Imagenes enviadas: ', images);
+      res.json(images);
+    }
+  });
+});
+
+
+
+
+//http://localhost:3000/segucom/api/images/1/Boletines
+//http://localhost:3000/segucom/api/images/2/Consignas
+
+
+/*
+CREATE TABLE IMAGES (
+    ID_registro VARCHAR(50),
+    categoria VARCHAR(100),
+    descripcion VARCHAR(255),
+    ruta VARCHAR(255)
+);
+ */
+
 // Ruta de ejemplo
 app.get('/test', (req, res) => {
   res.send('¡Hola, mundo!');
@@ -158,7 +279,4 @@ http://localhost:3000/maps/elemento?elementoId=80000
 http://localhost:3000/maps/geocercas?regionId=31
 http://localhost:3000/maps/elementos/geocerca?regionId=29
 http://localhost:3000/maps/vigilancia/punto?puntoId=3
-
-
-
 */

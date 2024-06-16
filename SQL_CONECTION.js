@@ -3,8 +3,8 @@ const mysql = require('mysql2');
 
 const connection = mysql.createPool({
   host: 'localhost',
-  user: 'server_user',
-  password: '6L@11Sk32gA#',
+  user: 'API_User',
+  password: 'VJQy9lCOUWsB3wZ',
   database: 'segucomm_db',
   port: 3306
 });

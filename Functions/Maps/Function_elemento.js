@@ -88,7 +88,7 @@ function UpdateUbicacion(req, res, data, Num_tel) {
         if (error) {
             res.status(500).send(error);
         } else {
-            console.log('Ubicacion actualizada de elemento: ' + Num_tel + ' a latitud: ' + data.ELEMENTO_LATITUD + ' y longitud: ' + data.ELEMENTO_LONGITUD);
+            console.log('Ubicacion actualizada de elemento: ' + Num_tel + ' a latitud: ' + data.ELEMENTO_LATITUD + ' y longitud: ' + data.ELEMENTO_LONGITUD + 'HORA: '+ data.Hora);
             res.json(results);
         }
     });
