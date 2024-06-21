@@ -188,6 +188,7 @@ app.get('/maps/vigilancia/punto', (req, res) => {
 //-------------------------------------------------------------> Rutas de fotos
 
 app.post('/segucom/api/upload/boletines/:id', uploadBoletines.single('file'), async (req, res) => {
+  console.log('Subiendo imagen a boletines');
   const id = req.params.id.toString(); // Asegúrate de que el ID sea una cadena
   const file = req.file;
   const description = req.body.description.toString(); // Asegúrate de que la descripción sea una cadena
@@ -211,6 +212,7 @@ app.post('/segucom/api/upload/boletines/:id', uploadBoletines.single('file'), as
 
 
 app.post('/segucom/api/upload/consignas/:id', uploadConsignas.single('file'), async (req, res) => {
+  console.log('Subiendo imagen a consignas');
   const id = req.params.id;
   const file = req.file;
   const description = req.body.description;
@@ -235,6 +237,7 @@ app.post('/segucom/api/upload/consignas/:id', uploadConsignas.single('file'), as
 // Endpoint para obtener una imagen según el ID y categoría
 // Endpoint para obtener imágenes según el ID y categoría
 app.get('/segucom/api/images/:id/:category', async (req, res) => {
+  console.log('Obteniendo imágenes');
   const connection = require('./SQL_CONECTION');
   const id = req.params.id;
   const category = req.params.category;
