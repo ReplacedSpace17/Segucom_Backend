@@ -187,10 +187,15 @@ app.get('/maps/vigilancia/punto', (req, res) => {
 
 //-------------------------------------------------------------> Rutas de file fotos
 
-// Ruta para servir la página de mapas
+// Ruta para enviar
 app.get('/fotos/upload', (req, res) => {
   res.sendFile(path.join(__dirname, 'fotos', 'uploadImage.html'));
 });
+// Ruta para ver fotos
+app.get('/fotos/view', (req, res) => {
+  res.sendFile(path.join(__dirname, 'fotos', 'viewFotos.html'));
+});
+//https://segucom.mx/fotos/viewFotos.html?category=Boletines&id_data=1
 //https://segucom.mx/fotos/uploadImage.html?endpoint=consignas&id_data=1
 
 //-------------------------------------------------------------> Rutas de fotos

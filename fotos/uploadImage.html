@@ -110,7 +110,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="backendURL.js"></script> 
+    <script src="/backendURL.js"></script> 
 </head>
 <body>
     <div class="viewRegion">
@@ -200,7 +200,7 @@
             const formData = new FormData();
             formData.append('file', file);
             formData.append('description', descriptionInput.value);
-            const backendUrl = 'http://segubackend:3000';
+            
             axios.post(`${backendUrl}/segucom/api/upload/${endpoint}/${id_data}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
