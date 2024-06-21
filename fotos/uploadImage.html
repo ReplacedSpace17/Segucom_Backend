@@ -200,7 +200,7 @@
             const formData = new FormData();
             formData.append('file', file);
             formData.append('description', descriptionInput.value);
-
+            const backendUrl = 'http://segubackend:3000';
             axios.post(`${backendUrl}/segucom/api/upload/${endpoint}/${id_data}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
