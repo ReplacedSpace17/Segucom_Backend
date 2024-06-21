@@ -78,7 +78,7 @@ const uploadConsignas = multer({ storage: storage('consignas') });
 
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
-const { addUserPersonal, loginUser, updatePerfilElemento } = require('./Functions/Register/Module_Register');
+const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp } = require('./Functions/Register/Module_Register');
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION MAPS
 const { getGeocercas , getGeocercasID} = require('./Functions/Maps/Function_region');
@@ -105,6 +105,18 @@ app.put('/segucom/api/user/:id', async (req, res) => {
   const data = req.body;
   const id = req.params.id;
   await updatePerfilElemento(req, res, data, id);
+});
+
+//get informaciomde usuario
+//localhost:3000/segucom/api/user/personal/4791039947
+app.get('/segucom/api/user/personal/:id', async (req, res) => {
+  const telefono = req.params.id;
+  await getInformationPerfil(req, res, telefono);
+});
+//localhost:3000/segucom/api/user/personal/4791039947
+app.get('/segucom/api/user/personal/app/:id', async (req, res) => {
+  const telefono = req.params.id;
+  await getInfoPerfilApp(req, res, telefono);
 });
 
 //-------------------------------------------------------------> Endpoints Mapas

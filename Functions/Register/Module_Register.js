@@ -32,7 +32,26 @@ function hash(password, saltRounds) {
     return bcrypt.hashSync(password, salt);
 }
 
+//funcion para obtener la informacion personal
+async function getInformationPerfil(req, res, TelNum){
+    const checkPhoneQuery = 'SELECT * FROM PERFIL_ELEMENTO WHERE ELEMENTO_TELNUMERO = ?';
+    connection.query(checkPhoneQuery, [TelNum], (checkError, results) => {
+        if (checkError) {
+            console.error('Error al verificar el número de teléfono', checkError);
+            return res.status(500).json({ error: 'Error de servidor al verificar el número de teléfono' });
+        }
 
+        // Si el número de teléfono existe, proceder con la actualización
+        if (results.length > 0) {
+            res.status(200).json(results[0]);
+        } else {
+            // Si el número de teléfono no existe, enviar una respuesta de error
+            console.log('El número de teléfono ya cuenta con un registro');
+            res.status(404).json({ error: 'El número de teléfono ya cuenta con un registro' });
+        }
+    });
+
+}
 
 // Función para actualizar el perfil de un usuario
 async function addUserPersonal(req, res, data) {
@@ -128,6 +147,58 @@ async function loginUser(req, res, telefono, clave) {
 }
 
 
+
+async function getInfoPerfilApp(req, res, TelNum) {
+    const getInfoQuery = `
+        SELECT 
+            pe.PERFIL_ID,
+            pe.PERFIL_NOMBRE,
+            pe.PERFIL_CLAVE,
+            pe.PERFIL_ANDROID,
+            e.ELEMENTO_ID,
+            e.ELEMENTO_FEC,
+            e.ELEMENTO_ACTIVO,
+            e.ELEMENTO_NUMERO,
+            e.ELEMENTO_NOMBRE,
+            e.ELEMENTO_PATERNO,
+            e.ELEMENTO_MATERNO,
+            e.ELEMENTO_SEXO,
+            e.ELEMENTO_DIRECCION,
+            e.ELEMENTO_CORREO,
+            e.ELEMENTO_CUIP,
+            e.ELEMENTO_QR,
+            e.ELEMENTO_TELEMEI,
+            e.ELEMENTO_TELMARCA,
+            e.ELEMENTO_BOTON,
+            e.ESTELEMEN_ID,
+            e.REGION_ID,
+            e.DIVISION_ID,
+            e.CARGO_ID,
+            e.BASE_ID,
+            e.TURNO_ID,
+            e.ELEMENTO_ULTIMALOCAL,
+            e.ELEMENTO_LATITUD,
+            e.ELEMENTO_LONGITUD,
+            e.ELEMENTO_RUTA
+        FROM PERFIL_ELEMENTO pe
+        LEFT JOIN ELEMENTO e ON pe.ELEMENTO_TELNUMERO = e.ELEMENTO_TELNUMERO
+        WHERE pe.ELEMENTO_TELNUMERO = ?
+    `;
+
+    connection.query(getInfoQuery, [TelNum], (error, results) => {
+        if (error) {
+            console.error('Error al obtener información del perfil', error);
+            return res.status(500).json({ error: 'Error de servidor al obtener información del perfil' });
+        }
+
+        if (results.length > 0) {
+            res.status(200).json(results[0]);
+        } else {
+            res.status(404).json({ error: 'No se encontró información del perfil para el número de teléfono proporcionado' });
+        }
+    });
+}
+
 function updatePerfilElemento(req, res, data, id) {
     const query = `
         UPDATE PERFIL_ELEMENTO 
@@ -159,5 +230,5 @@ function updatePerfilElemento(req, res, data, id) {
 
 
 module.exports = {
-    addUserPersonal, loginUser, updatePerfilElemento
+    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp
 };
