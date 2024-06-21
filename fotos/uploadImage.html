@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Fotos</title>
+    <style>
+        .viewRegion {
+            width: 100vw;
+            height: 100vh;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            max-width: 600px;
+        }
+        
+        .drag-drop-area {
+            width: 100%;
+            height: 100px;
+            padding: 20px;
+            border: 2px dashed #007bff;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5em;
+        }
+        
+        .drag-drop-area:hover {
+            border-color: #0056b3;
+        }
+        
+        .drag-drop-area p {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        input[type="text"],
+        input[type="file"] {
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        
+        button {
+            width: 150px;
+            margin-top: 10px;
+            margin-bottom: 1em;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .preview-container {
+            width: 50%;
+            margin-top: 1em;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        #btn-remove {
+            background-color: #f52929;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="backendURL.js"></script> 
+</head>
+<body>
+    <div class="viewRegion">
+        <form id="upload-form" class="upload-form">
+            <div class="drag-drop-area" onclick="handleClickInput()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                <p>Selecciona o arrastra tu imagen aquí</p>
+                <input type="file" id="fileInput" class="form-control-file" style="display: none;" />
+            </div>
+            <div id="previewContainer" class="preview-container"></div>
+            <div id="messageContainer"></div>
+            <div class="form-group">
+                <label for="description">AGREGAR DESCRIPCIÓN:</label>
+                <input type="text" id="description" class="form-control" placeholder="Descripción aquí" required />
+            </div>
+            <button type="button" onclick="handleSubmit()" class="btn btn-primary">Enviar</button>
+        </form>
+    </div>
+
+    <script>
+        // Obtener el parámetro del endpoint desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const endpoint = urlParams.get('endpoint') || 'consignas'; // Valor por defecto si no se especifica en la URL
+        const id_data = urlParams.get('id_data');
+
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const messageContainer = document.getElementById('messageContainer');
+        const descriptionInput = document.getElementById('description');
+
+        let file = null;
+        let previewUrl = null;
+
+        fileInput.addEventListener('change', handleFileChange);
+        document.addEventListener('dragover', handleDragOver);
+        document.addEventListener('drop', handleDrop);
+
+        function handleFileChange(e) {
+            const selectedFile = e.target.files[0];
+            file = selectedFile;
+            renderPreview();
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            showMessage('Drop file here');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const droppedFile = e.dataTransfer.files[0];
+            file = droppedFile;
+            showMessage(`${droppedFile.name} está listo para ser enviado`);
+            if (droppedFile.type.startsWith('image/')) {
+                const fileReader = new FileReader();
+                fileReader.onload = () => {
+                    previewUrl = fileReader.result;
+                    renderPreview();
+                };
+                fileReader.readAsDataURL(droppedFile);
+            } else {
+                previewUrl = null;
+                renderPreview();
+            }
+        }
+
+        function handleClickInput() {
+            fileInput.click();
+        }
+
+        function handleSubmit() {
+            if (!file) {
+                showMessage('Please select a file');
+                setTimeout(() => {
+                    hideMessage();
+                }, 3000); // Mostrar el mensaje de error por 3 segundos
+                return;
+            }
+
+            if (!descriptionInput.value.trim()) {
+                showMessage('Please enter a description');
+                setTimeout(() => {
+                    hideMessage();
+                }, 3000); // Mostrar el mensaje de error por 3 segundos
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('description', descriptionInput.value);
+
+            axios.post(`${backendUrl}/segucom/api/upload/${endpoint}/${id_data}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    Swal.fire('Success', 'Enviado correctamente', 'success');
+                    file = null;
+                    previewUrl = null;
+                    hideMessage();
+                    document.getElementById('upload-form').reset();
+                    renderPreview();
+                }
+            })
+            .catch(error => {
+                showMessage('Failed to upload file');
+                setTimeout(() => {
+                    hideMessage();
+                }, 3000); // Mostrar el mensaje de error por 3 segundos
+            });
+        }
+
+        function renderPreview() {
+            if (previewUrl) {
+                previewContainer.innerHTML = `
+                    <div class="preview-container">
+                        <img src="${previewUrl}" alt="Preview" class="preview-image" />
+                        <button id="btn-remove" type="button" class="btn btn-link btn-sm" onclick="handleRemovePreview()">
+                            Eliminar
+                        </button>
+                    </div>
+                `;
+            } else {
+                previewContainer.innerHTML = '';
+            }
+        }
+
+        function showMessage(msg) {
+            messageContainer.innerHTML = `<p>${msg}</p>`;
+        }
+
+        function hideMessage() {
+            messageContainer.innerHTML = '';
+        }
+
+        function handleRemovePreview() {
+            file = null;
+            previewUrl = null;
+            hideMessage();
+            renderPreview();
+        }
+    </script>
+</body>
+</html>

@@ -185,6 +185,14 @@ app.get('/maps/vigilancia/punto', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaPuntoVigilancia.html'));
 });
 
+//-------------------------------------------------------------> Rutas de file fotos
+
+// Ruta para servir la página de mapas
+app.get('/fotos/upload', (req, res) => {
+  res.sendFile(path.join(__dirname, 'fotos', 'uploadImage.html'));
+});
+//https://segucom.mx/fotos/uploadImage.html?endpoint=consignas&id_data=1
+
 //-------------------------------------------------------------> Rutas de fotos
 
 app.post('/segucom/api/upload/boletines/:id', uploadBoletines.single('file'), async (req, res) => {

@@ -1,0 +1,1 @@
+const backendUrl = 'http://segubackend:3000';

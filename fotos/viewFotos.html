@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Imágenes</title>
+    <style>
+        .viewRegion {
+            padding: 20px;
+            margin-top: 1em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .imageGrid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .imageItem {
+            width: calc(33.333% - 10px); /* Para pantallas grandes */
+            max-width: 400px;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .imageItem img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .imageItem img:hover {
+            transform: scale(1.1);
+        }
+        
+        .imageItem p {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 5px;
+            margin: 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 1200px) {
+            .imageItem {
+                width: calc(50% - 10px); /* Para pantallas medianas */
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .imageItem {
+                width: calc(100% - 10px); /* Para pantallas pequeñas */
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="backendURL.js"></script> 
+    <script>
+        // Definición del backendUrl, sustituye por el adecuado
+         // Reemplaza por tu URL de backend
+         const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category') || 'Consignas'; // Valor por defecto si no se especifica en la URL
+        const id_data = urlParams.get('id_data') || '1';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchImages();
+        });
+
+        async function fetchImages() {
+            try {
+                const response = await axios.get(`${backendUrl}/segucom/api/images/${id_data}/${category}`);
+                const images = response.data;
+                renderImages(images);
+            } catch (error) {
+                console.error('Error al obtener las imágenes:', error);
+            }
+        }
+
+        function handleImageClick(descripcion) {
+            Swal.fire({
+                title: 'Descripción de la imagen',
+                text: descripcion,
+                icon: 'info',
+                confirmButtonText: 'Cerrar'
+            });
+        }
+
+        function renderImages(images) {
+            const imageGrid = document.querySelector('.imageGrid');
+            imageGrid.innerHTML = ''; // Limpiar grid antes de renderizar
+
+            if (images.length > 0) {
+                images.forEach((image, index) => {
+                    const imageItem = document.createElement('div');
+                    imageItem.classList.add('imageItem');
+                    imageItem.onclick = () => handleImageClick(image.descripcion);
+
+                    const img = document.createElement('img');
+                    img.src = `${backendUrl}/${image.ruta}`;
+                    img.alt = image.descripcion;
+
+                    const p = document.createElement('p');
+                    p.textContent = image.descripcion;
+
+                    imageItem.appendChild(img);
+                    imageItem.appendChild(p);
+
+                    imageGrid.appendChild(imageItem);
+                });
+            } else {
+                const noImagesMsg = document.createElement('p');
+                noImagesMsg.textContent = 'No se encontraron imágenes.';
+                imageGrid.appendChild(noImagesMsg);
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="viewRegion">
+        <h2>IMÁGENES RECIBIDAS</h2>
+        <div class="imageGrid"></div>
+    </div>
+</body>
+</html>
