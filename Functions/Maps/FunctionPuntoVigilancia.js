@@ -77,6 +77,7 @@ function getElementosAsignados(req, res, PuntoID) {
                 reject(error);
             } else {
                 console.log('Obteniendo elementos asignados...');
+                
                 res.send(results);
             }
         });
