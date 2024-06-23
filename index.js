@@ -148,6 +148,18 @@ app.put('/segucom/api/maps/elemento/:id', async (req, res) => {
   const data = req.body;
   await UpdateUbicacion(req, res, data, id);
 });
+/*
+{
+  "PersonalID": "843673647647",
+  "ELEMENTO_LATITUD": 21.151806,
+  "ELEMENTO_LONGITUD": -100.909455,
+  "ELEMENTO_ULTIMALOCAL": "2024-06-22 10:15:30",
+  "Hora": "10:15:30",
+  "Fecha": "2024-06-22",
+  "NumTel": 4791039914
+}
+segubackend.com:3000/segucom/api/maps/elemento/4791039914
+*/
 
 // Obtener los puntos de vigilancia
 app.get('/segucom/api/maps/puntosvigilancia', async (req, res) => {
