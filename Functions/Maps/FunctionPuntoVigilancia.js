@@ -44,8 +44,7 @@ function getPuntosVigilanciaByID(req, res, ID) {
 function getElementosAsignados(req, res, PuntoID) {
     const query = `
     SELECT 
-        PE.VIELEM_ID,
-        PE.ELEMENTO_ID,
+        PE.*,
         E.*,
         R.REGION_DESCRIP,
         D.DIVISION_DESCRIP,
