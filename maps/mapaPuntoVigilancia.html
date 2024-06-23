@@ -27,7 +27,9 @@
         const fetchPunto = async () => {
             try {
                 const response = await axios.get(`${backendUrl}/segucom/api/maps/puntosvigilancia/${puntoId}`);
+                console.log(`${backendUrl}/segucom/api/maps/puntosvigilancia/${puntoId}`);
                 selectedPunto = response.data[0];
+                console.log(selectedPunto);
                 if (selectedPunto) {
                     initMap();
                     fetchElementos(selectedPunto.VIGLIA_ID);
@@ -49,8 +51,10 @@
 
         const fetchElementos = async (puntoID) => {
             try {
-                const response = await axios.get(`${backendUrl}/segucom/api/maps/puntosvigilancia/elementos/${puntoID}`);
+                const response = await axios.get(`${backendUrl}/segucom/api/maps/puntosvigilancia/elementos/${puntoId}`);
+                console.log(`${backendUrl}/segucom/api/maps/puntosvigilancia/elementos/${puntoId}`);
                 elementos = response.data;
+                console.log(elementos);
                 addElementoMarkers();
             } catch (error) {
                 Swal.fire({
