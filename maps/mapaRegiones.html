@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places"></script>
-    <script src="backendURL.js"></script> <!-- Importar backendURL.js desde la carpeta public -->
+   
 </head>
 <body>
     <div id="map"></div>
@@ -22,6 +22,8 @@
         // Cambia esto a tu URL backend
 
         // Obtén el parámetro 'regionId' de la URL
+        const backendUrl = 'https://segubackend.com:3000';
+
         const urlParams = new URLSearchParams(window.location.search);
         const regionId = parseInt(urlParams.get('regionId'));
 

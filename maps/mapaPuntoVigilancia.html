@@ -10,7 +10,7 @@
             height: 100vh;
         }
     </style>
-    <script src="backendURL.js"></script> <!-- Importar backendURL.js desde la carpeta public -->
+  
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places,geometry"></script>
@@ -19,6 +19,7 @@
     <div id="map"></div>
 
     <script>
+        const backendUrl = 'https://segubackend.com:3000';
         const urlParams = new URLSearchParams(window.location.search);
         const puntoId = parseInt(urlParams.get('puntoId'));
 
