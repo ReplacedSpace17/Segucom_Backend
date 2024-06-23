@@ -294,8 +294,8 @@ https.createServer(httpsOptions, app).listen(port, () => {
 });
 
 
-//localhost:3000/fotos/upload?endpoint=boletines&id_data=1
-//localhost:3000/fotos/view?category=Boletines&id_data=1
+//https://segubackend.com:3000/fotos/upload?endpoint=boletines&id_data=1
+//https://segubackend.com:3000/fotos/view?category=Boletines&id_data=1
 //https://segucom.mx/fotos/viewFotos.html?category=Boletines&id_data=1
 //https://segucom.mx/fotos/uploadImage.html?endpoint=boletines&id_data=1
 
