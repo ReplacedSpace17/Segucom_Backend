@@ -25,7 +25,7 @@ function getPuntosVigilancia(req, res) {
 }
 
 function getPuntosVigilanciaByID(req, res, ID) {
-    const query = 'SELECT *  from PUNTO_VIGILANCIA WHERE VIGLIA_ID = ?;';
+    const query = 'SELECT *  from PUNTO_VIGILANCIA WHERE VIGILA_ID = ?;';
     return new Promise((resolve, reject) => {
         connection.query(query, [ID], (error, results) => {
             if (error) {
