@@ -88,8 +88,9 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="../backendURL.js"></script> 
+  
     <script>
+        const backendUrl = 'https://segubackend.com:3000';
         const urlParams = new URLSearchParams(window.location.search);
         const category = urlParams.get('category') || 'Consignas'; // Valor por defecto si no se especifica en la URL
         const id_data = urlParams.get('id_data') || '1';
