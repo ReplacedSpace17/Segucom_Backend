@@ -192,6 +192,14 @@ app.get('/maps/vigilancia/punto', (req, res) => {
 });
 
 //-------------------------------------------------------------> Rutas de fotos
+// Ruta para enviar
+app.get('/fotos/upload', (req, res) => {
+  res.sendFile(path.join(__dirname, 'fotos', 'uploadImage.html'));
+});
+// Ruta para ver fotos
+app.get('/fotos/view', (req, res) => {
+  res.sendFile(path.join(__dirname, 'fotos', 'viewFotos.html'));
+});
 
 // Ruta para subir imágenes a boletines por ID
 app.post('/segucom/api/upload/boletines/:id', uploadBoletines.single('file'), async (req, res) => {
