@@ -1,38 +1,41 @@
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const connection = require('./SQL_CONECTION');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fs = require('fs');
-const nodemailer = require('nodemailer');
+const { expressCspHeader, INLINE, NONE, SELF } = require('express-csp-header');
 const session = require('express-session');
 const multer = require('multer');
-const { expressCspHeader, INLINE, NONE, SELF } = require('express-csp-header');
-const path = require('path');
+const nodemailer = require('nodemailer');
+
 const app = express();
 const port = 3000;
 
-// Configura CORS
+// Configuración de CORS
 const corsOptions = {
   origin: ['https://segucom.mx', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500', '*', 'http://192.168.1.68/'],
   optionsSuccessStatus: 200
 };
-
 app.use(cors(corsOptions));
 
+// Body parser middleware
 app.use(bodyParser.json({ limit: '20mb' }));
-app.use('/uploads', express.static('uploads'));
-app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Configura la carpeta public para servir archivos estáticos
+// Configuración de archivos estáticos
+app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Configuración de session
 app.use(session({
   secret: 'tu_secreto',
   resave: false,
   saveUninitialized: true
 }));
 
+// Configuración de encabezados CSP
 app.use(expressCspHeader({ 
     policies: { 
         'default-src': [expressCspHeader.NONE], 
@@ -48,7 +51,7 @@ app.use(expressCspHeader({
         'media-src': [expressCspHeader.NONE],
         'worker-src': [expressCspHeader.NONE]
     } 
-}));  
+}));
 
 // Función para asegurarse de que la carpeta existe
 const ensureDirExists = (dir) => {
@@ -57,6 +60,7 @@ const ensureDirExists = (dir) => {
   }
 };
 
+// Configuración de Multer para subida de archivos
 const storage = (folder) => multer.diskStorage({
   destination: function (req, file, cb) {
     const now = new Date();
@@ -69,13 +73,12 @@ const storage = (folder) => multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // Asigna un nombre único al archivo
+    cb(null, Date.now() + path.extname(file.originalname));
   }
 });
 
 const uploadBoletines = multer({ storage: storage('boletines') });
 const uploadConsignas = multer({ storage: storage('consignas') });
-
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
 const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp } = require('./Functions/Register/Module_Register');
@@ -107,13 +110,13 @@ app.put('/segucom/api/user/:id', async (req, res) => {
   await updatePerfilElemento(req, res, data, id);
 });
 
-//get informaciomde usuario
-//localhost:3000/segucom/api/user/personal/4791039947
+// Obtener información de usuario por teléfono
 app.get('/segucom/api/user/personal/:id', async (req, res) => {
   const telefono = req.params.id;
   await getInformationPerfil(req, res, telefono);
 });
-//localhost:3000/segucom/api/user/personal/4791039947
+
+// Obtener información de usuario por teléfono para la app
 app.get('/segucom/api/user/personal/app/:id', async (req, res) => {
   const telefono = req.params.id;
   await getInfoPerfilApp(req, res, telefono);
@@ -125,13 +128,13 @@ app.get('/segucom/api/maps/geocercas', async (req, res) => {
   await getGeocercas(req, res);
 });
 
-// Obtener geocercas por id
+// Obtener geocercas por ID
 app.get('/segucom/api/maps/geocercas/:id', async (req, res) => {
   const id = req.params.id;
   await getGeocercasID(req, res, id);
 });
 
-// Localizar un elemento
+// Localizar un elemento por ID
 app.get('/segucom/api/maps/elemento/:id', async (req, res) => {
   const id = req.params.id;
   await LocalizarElemento(req, res, id);
@@ -142,37 +145,25 @@ app.get('/segucom/api/maps/elementos/all', async (req, res) => {
   await LocalizarTodosElemento(req, res);
 });
 
-// Actualizar ubicación de un elemento
+// Actualizar ubicación de un elemento por ID
 app.put('/segucom/api/maps/elemento/:id', async (req, res) => {
   const id = req.params.id;
   const data = req.body;
   await UpdateUbicacion(req, res, data, id);
 });
-/*
-{
-  "PersonalID": "843673647647",
-  "ELEMENTO_LATITUD": 21.151806,
-  "ELEMENTO_LONGITUD": -100.909455,
-  "ELEMENTO_ULTIMALOCAL": "2024-06-22 10:15:30",
-  "Hora": "10:15:30",
-  "Fecha": "2024-06-22",
-  "NumTel": 4791039914
-}
-segubackend.com:3000/segucom/api/maps/elemento/4791039914
-*/
 
 // Obtener los puntos de vigilancia
 app.get('/segucom/api/maps/puntosvigilancia', async (req, res) => {
   await getPuntosVigilancia(req, res);
 });
 
-// Obtener los elementos asignados a un punto de vigilancia
+// Obtener los elementos asignados a un punto de vigilancia por ID de punto
 app.get('/segucom/api/maps/puntosvigilancia/elementos/:id', async (req, res) => {
   const puntoID = req.params.id;
   await getElementosAsignados(req, res, puntoID);
 });
 
-// Obtener punto de vigilancia por id
+// Obtener punto de vigilancia por ID
 app.get('/segucom/api/maps/puntosvigilancia/:id', async (req, res) => {
   const id = req.params.id;
   await getPuntosVigilanciaByID(req, res, id);
@@ -180,43 +171,30 @@ app.get('/segucom/api/maps/puntosvigilancia/:id', async (req, res) => {
 
 //-------------------------------------------------------------> Rutas de mapas
 
-// Ruta para servir la página de mapas
+// Ruta para servir la página de mapas para elemento
 app.get('/maps/elemento', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaElemento.html'));
 });
-// Ruta para servir la página de mapas
+
+// Ruta para servir la página de mapas para geocercas
 app.get('/maps/geocercas', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaRegiones.html'));
 });
-// Ruta para servir la página de mapas
+
+// Ruta para servir la página de mapas para elementos en geocercas
 app.get('/maps/elementos/geocerca', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaElementoRegion.html'));
 });
-// Ruta para servir la página de mapas
+
+// Ruta para servir la página de mapas para puntos de vigilancia
 app.get('/maps/vigilancia/punto', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaPuntoVigilancia.html'));
 });
 
-//-------------------------------------------------------------> Rutas de file fotos
-
-// Ruta para enviar
-app.get('/fotos/upload', (req, res) => {
-  res.sendFile(path.join(__dirname, 'fotos', 'uploadImage.html'));
-});
-// Ruta para ver fotos
-app.get('/fotos/view', (req, res) => {
-  res.sendFile(path.join(__dirname, 'fotos', 'viewFotos.html'));
-});
-
-//localhost:3000/fotos/upload?endpoint=boletines&id_data=1
-//localhost:3000/fotos/view?category=Boletines&id_data=1
-//https://segucom.mx/fotos/viewFotos.html?category=Boletines&id_data=1
-//https://segucom.mx/fotos/uploadImage.html?endpoint=boletines&id_data=1
-
 //-------------------------------------------------------------> Rutas de fotos
 
+// Ruta para subir imágenes a boletines por ID
 app.post('/segucom/api/upload/boletines/:id', uploadBoletines.single('file'), async (req, res) => {
-  console.log('Subiendo imagen a boletines');
   const id = req.params.id.toString(); // Asegúrate de que el ID sea una cadena
   const file = req.file;
   const description = req.body.description.toString(); // Asegúrate de que la descripción sea una cadena
@@ -237,10 +215,8 @@ app.post('/segucom/api/upload/boletines/:id', uploadBoletines.single('file'), as
   }
 });
 
-
-
+// Ruta para subir imágenes a consignas por ID
 app.post('/segucom/api/upload/consignas/:id', uploadConsignas.single('file'), async (req, res) => {
-  console.log('Subiendo imagen a consignas');
   const id = req.params.id;
   const file = req.file;
   const description = req.body.description;
@@ -261,12 +237,8 @@ app.post('/segucom/api/upload/consignas/:id', uploadConsignas.single('file'), as
   }
 });
 
-
-// Endpoint para obtener una imagen según el ID y categoría
 // Endpoint para obtener imágenes según el ID y categoría
 app.get('/segucom/api/images/:id/:category', async (req, res) => {
-  console.log('Obteniendo imágenes');
-  const connection = require('./SQL_CONECTION');
   const id = req.params.id;
   const category = req.params.category;
 
@@ -292,7 +264,32 @@ app.get('/segucom/api/images/:id/:category', async (req, res) => {
   });
 });
 
+// Ruta de ejemplo
+app.get('/test', (req, res) => {
+  res.send('¡Hola, mundo!');
+});
 
+// Ruta de inicio
+app.get('/', (req, res) => {
+  res.send('Backend raiz');
+});
+
+// Configuración de HTTPS
+const httpsOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'certificates', 'PrivateKey.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'certificates', 'segubackend.com_2024.crt'))
+};
+
+// Crear servidor HTTPS
+https.createServer(httpsOptions, app).listen(port, () => {
+  console.log(`Servidor HTTPS corriendo en https://0.0.0.0:${port}`);
+});
+
+
+//localhost:3000/fotos/upload?endpoint=boletines&id_data=1
+//localhost:3000/fotos/view?category=Boletines&id_data=1
+//https://segucom.mx/fotos/viewFotos.html?category=Boletines&id_data=1
+//https://segucom.mx/fotos/uploadImage.html?endpoint=boletines&id_data=1
 
 
 //http://localhost:3000/segucom/api/images/1/Boletines
@@ -308,15 +305,6 @@ CREATE TABLE IMAGES (
 );
  */
 
-// Ruta de ejemplo
-app.get('/test', (req, res) => {
-  res.send('¡Hola, mundo!');
-});
-
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor corriendo en http://0.0.0.0:${port}`);
-});
-
 /* Mapas:
 http://localhost:3000/maps/elemento?elementoId=80000
 http://localhost:3000/maps/geocercas?regionId=31
@@ -327,4 +315,17 @@ http://segubackend.com:3000/maps/elemento?elementoId=80000
 http://segubackend.com:3000/maps/geocercas?regionId=31
 http://segubackend.com:3000/maps/elementos/geocerca?regionId=29
 http://segubackend.com:3000/maps/vigilancia/punto?puntoId=3
+*/
+
+/*
+{
+  "PersonalID": "843673647647",
+  "ELEMENTO_LATITUD": 21.151806,
+  "ELEMENTO_LONGITUD": -100.909455,
+  "ELEMENTO_ULTIMALOCAL": "2024-06-22 10:15:30",
+  "Hora": "10:15:30",
+  "Fecha": "2024-06-22",
+  "NumTel": 4791039914
+}
+segubackend.com:3000/segucom/api/maps/elemento/4791039914
 */
