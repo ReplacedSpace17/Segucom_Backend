@@ -306,15 +306,15 @@ CREATE TABLE IMAGES (
  */
 
 /* Mapas:
-http://localhost:3000/maps/elemento?elementoId=80000
-http://localhost:3000/maps/geocercas?regionId=31
-http://localhost:3000/maps/elementos/geocerca?regionId=29
-http://localhost:3000/maps/vigilancia/punto?puntoId=3
+https://localhost:3000/maps/elemento?elementoId=80000
+https://localhost:3000/maps/geocercas?regionId=31
+https://localhost:3000/maps/elementos/geocerca?regionId=29
+https://localhost:3000/maps/vigilancia/punto?puntoId=3
 
-http://segubackend.com:3000/maps/elemento?elementoId=80000
-http://segubackend.com:3000/maps/geocercas?regionId=31
-http://segubackend.com:3000/maps/elementos/geocerca?regionId=29
-http://segubackend.com:3000/maps/vigilancia/punto?puntoId=3
+https://segubackend.com:3000/maps/elemento?elementoId=80000
+https://segubackend.com:3000/maps/geocercas?regionId=31
+https://segubackend.com:3000/maps/elementos/geocerca?regionId=29
+https://segubackend.com:3000/maps/vigilancia/punto?puntoId=3
 */
 
 /*
