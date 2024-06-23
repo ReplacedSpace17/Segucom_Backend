@@ -195,8 +195,11 @@ app.get('/fotos/upload', (req, res) => {
 app.get('/fotos/view', (req, res) => {
   res.sendFile(path.join(__dirname, 'fotos', 'viewFotos.html'));
 });
+
+//localhost:3000/fotos/upload?endpoint=boletines&id_data=1
+//localhost:3000/fotos/view?category=Boletines&id_data=1
 //https://segucom.mx/fotos/viewFotos.html?category=Boletines&id_data=1
-//https://segucom.mx/fotos/uploadImage.html?endpoint=consignas&id_data=1
+//https://segucom.mx/fotos/uploadImage.html?endpoint=boletines&id_data=1
 
 //-------------------------------------------------------------> Rutas de fotos
 
@@ -307,4 +310,9 @@ http://localhost:3000/maps/elemento?elementoId=80000
 http://localhost:3000/maps/geocercas?regionId=31
 http://localhost:3000/maps/elementos/geocerca?regionId=29
 http://localhost:3000/maps/vigilancia/punto?puntoId=3
+
+http://segubackend.com:3000/maps/elemento?elementoId=80000
+http://segubackend.com:3000/maps/geocercas?regionId=31
+http://segubackend.com:3000/maps/elementos/geocerca?regionId=29
+http://segubackend.com:3000/maps/vigilancia/punto?puntoId=3
 */

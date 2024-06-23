@@ -29,14 +29,14 @@
             cursor: pointer;
         }
         
-        .imageItem img {
+        .imageItem img, .imageItem .pdfIcon {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
         }
         
-        .imageItem img:hover {
+        .imageItem img:hover, .imageItem .pdfIcon:hover {
             transform: scale(1.1);
         }
         
@@ -52,6 +52,12 @@
             text-align: center;
             font-size: 14px;
         }
+
+        .pdfIcon {
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/1667px-PDF_file_icon.svg.png'); /* Ruta al ícono de PDF */
+            background-size: cover;
+            background-position: center;
+        }
         
         @media (max-width: 1200px) {
             .imageItem {
@@ -64,14 +70,27 @@
                 width: calc(100% - 10px); /* Para pantallas pequeñas */
             }
         }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            padding: 10px 20px;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="/backendURL.js"></script> 
+    <script src="../backendURL.js"></script> 
     <script>
-        // Definición del backendUrl, sustituye por el adecuado
-         // Reemplaza por tu URL de backend
-         const urlParams = new URLSearchParams(window.location.search);
+        const urlParams = new URLSearchParams(window.location.search);
         const category = urlParams.get('category') || 'Consignas'; // Valor por defecto si no se especifica en la URL
         const id_data = urlParams.get('id_data') || '1';
 
@@ -98,25 +117,43 @@
             });
         }
 
+        function handlePDFClick(pdfUrl) {
+            window.open(pdfUrl, '_blank');
+        }
+
         function renderImages(images) {
             const imageGrid = document.querySelector('.imageGrid');
             imageGrid.innerHTML = ''; // Limpiar grid antes de renderizar
 
             if (images.length > 0) {
-                images.forEach((image, index) => {
+                images.forEach((image) => {
                     const imageItem = document.createElement('div');
                     imageItem.classList.add('imageItem');
-                    imageItem.onclick = () => handleImageClick(image.descripcion);
+                    
+                    if (image.ruta.endsWith('.pdf')) {
+                        imageItem.onclick = () => handlePDFClick(`${backendUrl}/${image.ruta}`);
+                        
+                        const pdfIcon = document.createElement('div');
+                        pdfIcon.classList.add('pdfIcon');
+                        
+                        const p = document.createElement('p');
+                        p.textContent = image.descripcion;
 
-                    const img = document.createElement('img');
-                    img.src = `${backendUrl}/${image.ruta}`;
-                    img.alt = image.descripcion;
-
-                    const p = document.createElement('p');
-                    p.textContent = image.descripcion;
-
-                    imageItem.appendChild(img);
-                    imageItem.appendChild(p);
+                        imageItem.appendChild(pdfIcon);
+                        imageItem.appendChild(p);
+                    } else {
+                        imageItem.onclick = () => handleImageClick(image.descripcion);
+                        
+                        const img = document.createElement('img');
+                        img.src = `${backendUrl}/${image.ruta}`;
+                        img.alt = image.descripcion;
+                        
+                        const p = document.createElement('p');
+                        p.textContent = image.descripcion;
+                        
+                        imageItem.appendChild(img);
+                        imageItem.appendChild(p);
+                    }
 
                     imageGrid.appendChild(imageItem);
                 });
@@ -126,12 +163,18 @@
                 imageGrid.appendChild(noImagesMsg);
             }
         }
+
+        function handleBack() {
+            history.back();
+        }
     </script>
 </head>
 <body>
     <div class="viewRegion">
         <h2>IMÁGENES RECIBIDAS</h2>
         <div class="imageGrid"></div>
+
+        <button type="button" onclick="handleBack()" class="btn-back">Volver</button>
     </div>
 </body>
 </html>

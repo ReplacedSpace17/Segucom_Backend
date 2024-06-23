@@ -107,10 +107,24 @@
         #btn-remove {
             background-color: #f52929;
         }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/backendURL.js"></script> 
+    <script src="../backendURL.js"></script> 
 </head>
 <body>
     <div class="viewRegion">
@@ -127,6 +141,7 @@
             </div>
             <button type="button" onclick="handleSubmit()" class="btn btn-primary">Enviar</button>
         </form>
+        <button type="button" onclick="handleBack()" class="btn btn-back">Regresar</button>
     </div>
 
     <script>
@@ -149,28 +164,41 @@
 
         function handleFileChange(e) {
             const selectedFile = e.target.files[0];
-            file = selectedFile;
-            renderPreview();
+            validateFile(selectedFile);
         }
 
         function handleDragOver(e) {
             e.preventDefault();
-            showMessage('Drop file here');
         }
 
         function handleDrop(e) {
             e.preventDefault();
             const droppedFile = e.dataTransfer.files[0];
-            file = droppedFile;
-            showMessage(`${droppedFile.name} está listo para ser enviado`);
-            if (droppedFile.type.startsWith('image/')) {
-                const fileReader = new FileReader();
-                fileReader.onload = () => {
-                    previewUrl = fileReader.result;
+            validateFile(droppedFile);
+        }
+
+        function validateFile(selectedFile) {
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+            if (validTypes.includes(selectedFile.type)) {
+                file = selectedFile;
+                showMessage(`${selectedFile.name} está listo para ser enviado`);
+                if (selectedFile.type.startsWith('image/')) {
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                        previewUrl = fileReader.result;
+                        renderPreview();
+                    };
+                    fileReader.readAsDataURL(selectedFile);
+                } else {
+                    previewUrl = null;
                     renderPreview();
-                };
-                fileReader.readAsDataURL(droppedFile);
+                }
             } else {
+                showMessage('Solo se permiten archivos PDF o imágenes (JPEG, PNG, GIF).');
+                setTimeout(() => {
+                    hideMessage();
+                }, 3000);
+                file = null;
                 previewUrl = null;
                 renderPreview();
             }
@@ -185,7 +213,7 @@
                 showMessage('Please select a file');
                 setTimeout(() => {
                     hideMessage();
-                }, 3000); // Mostrar el mensaje de error por 3 segundos
+                }, 3000);
                 return;
             }
 
@@ -193,7 +221,7 @@
                 showMessage('Please enter a description');
                 setTimeout(() => {
                     hideMessage();
-                }, 3000); // Mostrar el mensaje de error por 3 segundos
+                }, 3000);
                 return;
             }
 
@@ -220,7 +248,7 @@
                 showMessage('Failed to upload file');
                 setTimeout(() => {
                     hideMessage();
-                }, 3000); // Mostrar el mensaje de error por 3 segundos
+                }, 3000);
             });
         }
 
@@ -229,6 +257,15 @@
                 previewContainer.innerHTML = `
                     <div class="preview-container">
                         <img src="${previewUrl}" alt="Preview" class="preview-image" />
+                        <button id="btn-remove" type="button" class="btn btn-link btn-sm" onclick="handleRemovePreview()">
+                            Eliminar
+                        </button>
+                    </div>
+                `;
+            } else if (file && file.type === 'application/pdf') {
+                previewContainer.innerHTML = `
+                    <div class="preview-container">
+                        <p>${file.name}</p>
                         <button id="btn-remove" type="button" class="btn btn-link btn-sm" onclick="handleRemovePreview()">
                             Eliminar
                         </button>
@@ -252,6 +289,10 @@
             previewUrl = null;
             hideMessage();
             renderPreview();
+        }
+
+        function handleBack() {
+            history.back();
         }
     </script>
 </body>
