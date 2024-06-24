@@ -272,6 +272,12 @@ app.get('/segucom/api/images/:id/:category', async (req, res) => {
   });
 });
 
+//------ayuda
+// Ruta para enviar
+app.get('/help', (req, res) => {
+  res.sendFile(path.join(__dirname, 'help', 'index.html'));
+});
+
 // Ruta de ejemplo
 app.get('/test', (req, res) => {
   res.send('¡Hola, mundo!');

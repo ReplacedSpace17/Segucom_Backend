@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help - SEGUCOM</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 60px; /* Para evitar el header fijo */
+            box-sizing: border-box;
+        }
+        .index {
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 700px;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .index h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .index ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .index li {
+            margin-bottom: 10px;
+            width: 45%; /* Dos columnas */
+            box-sizing: border-box;
+        }
+        .index a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.3s ease;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .index a:hover {
+            background-color: #f0f0f0;
+        }
+        header {
+            background-color: #073560;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            .index {
+                width: 90%;
+                padding: 15px;
+            }
+            .index a {
+                padding: 8px;
+                font-size: 14px;
+            }
+            .index li {
+                width: 100%; /* Una columna en pantallas medianas */
+            }
+        }
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 20px;
+            }
+            .index h2 {
+                font-size: 20px;
+            }
+            .index a {
+                padding: 6px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SEGUCOM</h1>
+    </header>
+    <div class="container">
+        <div class="index">
+            <h2>Manual de Usuario</h2>
+            <ul>
+                <li><a href="https://segucom.mx/help/Explicacion_de_la_interfaz.pdf">Descripción de la Interfaz</a></li>
+                <li><a href="https://segucom.mx/help/Parametros.pdf">Parámetros</a></li>
+                <li><a href="https://segucom.mx/help/Elementos.pdf">Elementos</a></li>
+                <li><a href="https://segucom.mx/help/Localizacion.pdf">Localización</a></li>
+                <li><a href="https://segucom.mx/help/Boletin.pdf">Boletines</a></li>
+                <li><a href="https://segucom.mx/help/Consignas.pdf">Consignas</a></li>
+                <li><a href="https://segucom.mx/help/Punto_de_vigilancia.pdf">Punto de Vigilancia</a></li>
+                <li><a href="https://segucom.mx/help/Pase_de_lista.pdf">Pase de Lista</a></li>
+                <li><a href="https://segucom.mx/help/Mensajeria.pdf">Mensajería</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
