@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +19,7 @@
             align-items: center;
             flex-direction: column;
         }
-        
+
         .upload-form {
             display: flex;
             flex-direction: column;
@@ -26,7 +27,7 @@
             width: 80%;
             max-width: 600px;
         }
-        
+
         .drag-drop-area {
             width: 100%;
             height: 100px;
@@ -41,27 +42,27 @@
             align-items: center;
             margin-bottom: 1.5em;
         }
-        
+
         .drag-drop-area:hover {
             border-color: #0056b3;
         }
-        
+
         .drag-drop-area p {
             margin-bottom: 10px;
             color: #007bff;
         }
-        
+
         .form-group {
             margin-bottom: 15px;
             width: 100%;
         }
-        
+
         label {
             font-weight: bold;
             margin-bottom: 5px;
             display: block;
         }
-        
+
         input[type="text"],
         input[type="file"] {
             padding: 10px;
@@ -70,7 +71,7 @@
             border-radius: 5px;
             background-color: #fff;
         }
-        
+
         button {
             width: 150px;
             margin-top: 10px;
@@ -83,11 +84,11 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        
+
         button:hover {
             background-color: #0056b3;
         }
-        
+
         .preview-container {
             width: 50%;
             margin-top: 1em;
@@ -96,14 +97,14 @@
             flex-direction: column;
             align-items: center;
         }
-        
+
         .preview-image {
             max-width: 100%;
             height: auto;
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
-        
+
         #btn-remove {
             background-color: #f52929;
         }
@@ -124,12 +125,14 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-   
+
 </head>
+
 <body>
     <div class="viewRegion">
         <form id="upload-form" class="upload-form">
-            <div class="drag-drop-area" onclick="handleClickInput()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+            <div class="drag-drop-area" onclick="handleClickInput()" ondragover="handleDragOver(event)"
+                ondrop="handleDrop(event)">
                 <p>Selecciona o arrastra tu imagen aquí</p>
                 <input type="file" id="fileInput" class="form-control-file" style="display: none;" />
             </div>
@@ -229,28 +232,28 @@
             const formData = new FormData();
             formData.append('file', file);
             formData.append('description', descriptionInput.value);
-            
+
             axios.post(`${backendUrl}/segucom/api/upload/${endpoint}/${id_data}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             })
-            .then(response => {
-                if (response.status === 200) {
-                    Swal.fire('Success', 'Enviado correctamente', 'success');
-                    file = null;
-                    previewUrl = null;
-                    hideMessage();
-                    document.getElementById('upload-form').reset();
-                    renderPreview();
-                }
-            })
-            .catch(error => {
-                showMessage('Failed to upload file');
-                setTimeout(() => {
-                    hideMessage();
-                }, 3000);
-            });
+                .then(response => {
+                    if (response.status === 200) {
+                        Swal.fire('Success', 'Enviado correctamente', 'success');
+                        file = null;
+                        previewUrl = null;
+                        hideMessage();
+                        document.getElementById('upload-form').reset();
+                        renderPreview();
+                    }
+                })
+                .catch(error => {
+                    showMessage('Failed to upload file');
+                    setTimeout(() => {
+                        hideMessage();
+                    }, 3000);
+                });
         }
 
         function renderPreview() {
@@ -293,8 +296,21 @@
         }
 
         function handleBack() {
-            history.back();
+            if (typeof endpoint === 'undefined') {
+                console.error('La variable endpoint no está definida');
+                return;
+            }
+
+            if (endpoint === 'boletines') {
+                window.location.href = 'https://www.segucom.mx/web/Menu_Segucom/Menu_Segucom_form_php.php?sc_item_menu=item_51&sc_apl_menu=grid_ALERTAMIENTO&sc_apl_link=%2Fweb%2F&sc_usa_grupo=';
+            } else if (endpoint === 'consignas') {
+                window.location.href = 'https://www.segucom.mx/web/Menu_Segucom/Menu_Segucom_form_php.php?sc_item_menu=item_35&sc_apl_menu=grid_CONSIGNA&sc_apl_link=%2Fweb%2F&sc_usa_grupo=';
+            } else {
+                console.warn('Valor de endpoint no reconocido:', endpoint);
+            }
         }
+
     </script>
 </body>
+
 </html>
