@@ -166,7 +166,18 @@
         }
 
         function handleBack() {
-            history.back();
+            if (typeof endpoint === 'undefined') {
+                console.error('La variable endpoint no está definida');
+                return;
+            }
+
+            if (category === 'Boletines') {
+                window.location.href = 'https://www.segucom.mx/web/Menu_Segucom/Menu_Segucom_form_php.php?sc_item_menu=item_51&sc_apl_menu=grid_ALERTAMIENTO&sc_apl_link=%2Fweb%2F&sc_usa_grupo=';
+            } else if (category === 'Consignas') {
+                window.location.href = 'https://www.segucom.mx/web/Menu_Segucom/Menu_Segucom_form_php.php?sc_item_menu=item_35&sc_apl_menu=grid_CONSIGNA&sc_apl_link=%2Fweb%2F&sc_usa_grupo=';
+            } else {
+                console.warn('Valor de endpoint no reconocido:', endpoint);
+            }
         }
     </script>
 </head>

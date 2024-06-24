@@ -42,6 +42,7 @@ git pull
  sudo systemctl status backendsegucom.service
  sudo systemctl enable backendsegucom.service
  sudo systemctl start backendsegucom.service
+ sudo systemctl disable backendsegucom.service
 
 
  #invitados c5
