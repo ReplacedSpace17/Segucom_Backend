@@ -90,6 +90,12 @@ const {getPuntosVigilancia, getElementosAsignados, getPuntosVigilanciaByID} = re
 const { Console } = require('console');
 
 const { addImagePath, getImages} = require('./Functions/Images/Module_Images');
+
+const { ValidarAdministrador,
+  CrearEncabezado,
+  ValidarElementoGrupo,
+  PasarLista} = require('./Functions/PaseLista/Function_pase_lista');
+
 //-------------------------------------------------------------> Endpoints App
 // Agregar un nuevo usuario
 app.post('/segucom/api/user', async (req, res) => {
@@ -271,6 +277,40 @@ app.get('/segucom/api/images/:id/:category', async (req, res) => {
     }
   });
 });
+
+
+//-------------------------------------------------------------> Rutas de pase de lista
+// Validar administrador tiene permiso de efectuar el pase de lista
+app.get('/segucom/api/pase_de_lista/validar/:numero_Elemento', async (req, res) => {
+  const numero_Elemento = req.params.numero_Elemento;
+  await ValidarAdministrador(req, res, numero_Elemento);
+});
+//http://localhost:3000/segucom/api/pase_de_lista/validar/80000
+
+
+//Insertar un nuevo encabezado de pase de lista
+app.post('/segucom/api/pase_de_lista/encabezado/:numero_Elemento/:id_Grupo', async (req, res) => {
+  const numero_Elemento = req.params.numero_Elemento;
+  const id_Grupo = req.params.id_Grupo;
+  await CrearEncabezado(req, res, numero_Elemento, id_Grupo);
+});
+//http://localhost:3000/segucom/api/pase_de_lista/encabezado/80000/2
+
+//verificar si el elemento pertenece al grupo que se esta realizando el pase de lista
+app.get('/segucom/api/pase_de_lista/validar_elemento/:numero_Elemento/:id_Grupo/:id_Encabezado', async (req, res) => {
+  const numero_Elemento = req.params.numero_Elemento;
+  const id_Grupo = req.params.id_Grupo;
+  const id_Encabezado = req.params.id_Encabezado;
+  await ValidarElementoGrupo(req, res, numero_Elemento, id_Grupo, id_Encabezado);
+});
+//num elemeneto, id grupo, id encabezado
+//http://localhost:3000/segucom/api/pase_de_lista/validar_elemento/80001/2/1 
+
+
+
+
+
+
 
 //------ayuda
 // Ruta para enviar
