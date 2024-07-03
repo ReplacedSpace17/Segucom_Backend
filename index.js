@@ -310,7 +310,9 @@ app.get('/segucom/api/pase_de_lista/validar_elemento/:numero_Elemento/:id_Grupo/
 //obtener la lista de elementos de un grupo
 app.get('/segucom/api/pase_de_lista/elementos/:id_Grupo', async (req, res) => {
   const id_Grupo = req.params.id_Grupo;
+  console.log('Obtener elementos asignados al grupo: ' + id_Grupo);
   await GetElementosAsignados(req, res, id_Grupo);
+
 });
 //http://localhost:3000/segucom/api/pase_de_lista/elementos/2
 
