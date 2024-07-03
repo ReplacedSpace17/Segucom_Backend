@@ -94,7 +94,7 @@ const { addImagePath, getImages} = require('./Functions/Images/Module_Images');
 const { ValidarAdministrador,
   CrearEncabezado,
   ValidarElementoGrupo,
-  PasarLista} = require('./Functions/PaseLista/Function_pase_lista');
+  PasarLista, GetElementosAsignados} = require('./Functions/PaseLista/Function_pase_lista');
 
 //-------------------------------------------------------------> Endpoints App
 // Agregar un nuevo usuario
@@ -293,6 +293,7 @@ app.post('/segucom/api/pase_de_lista/encabezado/:numero_Elemento/:id_Grupo', asy
   const numero_Elemento = req.params.numero_Elemento;
   const id_Grupo = req.params.id_Grupo;
   await CrearEncabezado(req, res, numero_Elemento, id_Grupo);
+
 });
 //http://localhost:3000/segucom/api/pase_de_lista/encabezado/80000/2
 
@@ -306,8 +307,12 @@ app.get('/segucom/api/pase_de_lista/validar_elemento/:numero_Elemento/:id_Grupo/
 //num elemeneto, id grupo, id encabezado
 //http://localhost:3000/segucom/api/pase_de_lista/validar_elemento/80001/2/1 
 
-
-
+//obtener la lista de elementos de un grupo
+app.get('/segucom/api/pase_de_lista/elementos/:id_Grupo', async (req, res) => {
+  const id_Grupo = req.params.id_Grupo;
+  await GetElementosAsignados(req, res, id_Grupo);
+});
+//http://localhost:3000/segucom/api/pase_de_lista/elementos/2
 
 
 

@@ -39,6 +39,7 @@ function CrearEncabezado(req, res, numero_Elemento, id_Grupo) {
         if (error) {
             res.status(500).send(error);
         } else {
+            console.log('Encabezado de pase de lista creado correctamente: ' + results.insertId);
             res.json({ PASENCA_ID: results.insertId });
         }
     });
@@ -88,10 +89,39 @@ function PasarLista(req, res, numero_Elemento, id_Encabezado) {
     });
 }
 
+function GetElementosAsignados(req, res, id_Grupo) {
+    const query = `
+        SELECT 
+            e.ELEMENTO_NOMBRE,
+            e.ELEMENTO_PATERNO,
+            e.ELEMENTO_MATERNO,
+            e.ELEMENTO_NUMERO
+        FROM 
+            PASE_ELEMENTO pe
+        JOIN 
+            ELEMENTO e ON pe.PASELEM_ELEMENTO = e.ELEMENTO_NUMERO
+        WHERE 
+            pe.PASE_ID = ? AND pe.PASELEM_ESTATUS = 1
+    `;
+    
+    connection.query(query, [id_Grupo], (error, results) => {
+        if (error) {
+            res.status(500).send(error);
+        } else {
+            if (results.length > 0) {
+                res.json(results);
+            } else {
+                res.status(404).send('No se encontraron elementos asignados al grupo.');
+            }
+        }
+    });
+}
+
 
 module.exports = {
     ValidarAdministrador,
     CrearEncabezado,
     ValidarElementoGrupo,
-    PasarLista
+    PasarLista,
+    GetElementosAsignados
 };
