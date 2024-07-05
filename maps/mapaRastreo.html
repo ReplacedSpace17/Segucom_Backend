@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa rastreo</title>
+    <style>
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+   
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places"></script>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const elementoId = parseInt(urlParams.get('elementoId'));
+        let map, selectedElemento;
+
+        const backendUrl = 'http://192.168.1.90:3000';
+
+        const fetchElementos = async () => {
+            try {
+                const response = await axios.get(`${backendUrl}/segucom/api/maps/elemento/${elementoId}/rastreo`);
+                const historialUbicaciones = response.data;
+
+                if (historialUbicaciones.length > 0) {
+                    selectedElemento = historialUbicaciones[0]; // Tomamos el primer punto como referencia
+
+                    // Inicializar el mapa
+                    initMap();
+
+                    // Dibujar la ruta con los puntos de ubicación
+                    const routeCoordinates = historialUbicaciones.map(loc => ({
+                        lat: parseFloat(loc.LATITUD),
+                        lng: parseFloat(loc.LONGITUD),
+                        date: new Date(loc.HISTO_FECHA)
+                    }));
+
+                    const routePath = new google.maps.Polyline({
+                        path: routeCoordinates,
+                        geodesic: true,
+                        strokeColor: '#005A93', // Color de la línea en azul oscuro
+                        strokeOpacity: 1.0,
+                        strokeWeight: 4 // Grosor de la línea
+                    });
+
+                    routePath.setMap(map);
+
+                    // Agregar marcadores y infoWindows
+                    routeCoordinates.forEach((coord, index) => {
+                        const marker = new google.maps.Marker({
+                            position: { lat: coord.lat, lng: coord.lng },
+                            map: map,
+                            title: `Fecha y hora: ${coord.date.toLocaleString('es-ES')}`
+                        });
+
+                        marker.addListener('mouseover', () => {
+                            const infoWindow = new google.maps.InfoWindow({
+                                content: `<div><strong>Fecha y hora:</strong><br>${coord.date.toLocaleString('es-ES')}</div>`
+                            });
+                            infoWindow.open(map, marker);
+                        });
+
+                        marker.addListener('mouseout', () => {
+                            infoWindow.close();
+                        });
+                    });
+
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se encontraron datos de ubicación para este elemento',
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al cargar ubicaciones',
+                    text: error.response ? error.response.data.message : error.message,
+                });
+            }
+        };
+
+        const initMap = () => {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {
+                    lat: parseFloat(selectedElemento.LATITUD) || 24.886,
+                    lng: parseFloat(selectedElemento.LONGITUD) || -70.268
+                },
+                zoom: 14,
+                mapTypeId: 'terrain'
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', fetchElementos);
+    </script>
+</body>
+</html>

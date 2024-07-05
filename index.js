@@ -15,7 +15,7 @@ const port = 3000;
 
 // Configuración de CORS
 const corsOptions = {
-  origin: ['https://segucom.mx', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500', '*', 'http://192.168.1.68/'],
+  origin: ['https://segucom.mx', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500', '*', 'http://192.168.1.68/', 'http://localhost:3000'],
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -202,6 +202,11 @@ app.get('/maps/elementos/geocerca', (req, res) => {
 // Ruta para servir la página de mapas para puntos de vigilancia
 app.get('/maps/vigilancia/punto', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaPuntoVigilancia.html'));
+});
+
+// 
+app.get('/maps/vigilancia/rastreo', (req, res) => {
+  res.sendFile(path.join(__dirname, 'maps', 'mapaRastreo.html'));
 });
 
 
