@@ -46,7 +46,7 @@ async function getInformationPerfil(req, res, TelNum){
             res.status(200).json(results[0]);
         } else {
             // Si el número de teléfono no existe, enviar una respuesta de error
-            console.log('El número de teléfono ya cuenta con un registro');
+            console.log('No se encontró información del perfil para el número de teléfono proporcionado');
             res.status(404).json({ error: 'El número de teléfono ya cuenta con un registro' });
         }
     });
@@ -229,6 +229,32 @@ function updatePerfilElemento(req, res, data, id) {
 }
 
 
+async function getNotificationsBoletinaje(req, res, numero_Elemento) {
+    const getNotificationsQuery = `
+        SELECT 
+            COUNT(*) AS total
+        FROM 
+            ALER_ELEMENTO 
+        WHERE 
+            ALELEM_CONFIRM = 0 AND 
+            ELEMENTO_NUMERO = ?;
+    `;
+
+    connection.query(getNotificationsQuery, [numero_Elemento], (error, results) => {
+        if (error) {
+            console.error('Error al obtener las notificaciones de boletinaje', error);
+            return res.status(500).json({ error: 'Error de servidor al obtener las notificaciones de boletinaje' });
+        }
+
+        if (results.length > 0) {
+            res.status(200).json({ Boletines: results[0].total });
+        } else {
+            res.status(404).json({ error: 'No se encontraron notificaciones de boletinaje para el número de elemento proporcionado' });
+        }
+    });
+}
+
+
 module.exports = {
-    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp
+    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotificationsBoletinaje
 };
