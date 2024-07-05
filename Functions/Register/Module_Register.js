@@ -229,8 +229,8 @@ function updatePerfilElemento(req, res, data, id) {
 }
 
 
-async function getNotificationsBoletinaje(req, res, numero_Elemento) {
-    const getNotificationsQuery = `
+async function getNotifications(req, res, numero_Elemento) {
+    const getBoletinesQuery = `
         SELECT 
             COUNT(*) AS total
         FROM 
@@ -240,21 +240,38 @@ async function getNotificationsBoletinaje(req, res, numero_Elemento) {
             ELEMENTO_NUMERO = ?;
     `;
 
-    connection.query(getNotificationsQuery, [numero_Elemento], (error, results) => {
+    const getConsignasQuery = `
+        SELECT 
+            COUNT(*) AS total
+        FROM 
+            CONSIGNA_ELEMENTO 
+        WHERE 
+            CATELEM_CONFIRM = 0 AND 
+            ELEMENTO_NUMERO = ?;
+    `;
+
+    connection.query(getBoletinesQuery, [numero_Elemento], (error, boletinesResults) => {
         if (error) {
             console.error('Error al obtener las notificaciones de boletinaje', error);
             return res.status(500).json({ error: 'Error de servidor al obtener las notificaciones de boletinaje' });
         }
 
-        if (results.length > 0) {
-            res.status(200).json({ Boletines: results[0].total });
-        } else {
-            res.status(404).json({ error: 'No se encontraron notificaciones de boletinaje para el número de elemento proporcionado' });
-        }
+        connection.query(getConsignasQuery, [numero_Elemento], (error, consignasResults) => {
+            if (error) {
+                console.error('Error al obtener las consignas', error);
+                return res.status(500).json({ error: 'Error de servidor al obtener las consignas' });
+            }
+
+            res.status(200).json({
+                Boletines: boletinesResults[0].total,
+                Consignas: consignasResults[0].total
+            });
+        });
     });
 }
 
 
+
 module.exports = {
-    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotificationsBoletinaje
+    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications
 };

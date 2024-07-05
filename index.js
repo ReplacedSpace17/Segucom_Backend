@@ -81,7 +81,7 @@ const uploadBoletines = multer({ storage: storage('boletines') });
 const uploadConsignas = multer({ storage: storage('consignas') });
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
-const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotificationsBoletinaje } = require('./Functions/Register/Module_Register');
+const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications } = require('./Functions/Register/Module_Register');
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION MAPS
 const { getGeocercas , getGeocercasID} = require('./Functions/Maps/Function_region');
@@ -131,7 +131,7 @@ app.get('/segucom/api/user/personal/app/:id', async (req, res) => {
 //obtener el conteo de boletines no confirmados
 app.get('/segucom/api/user/boletines/:elemento_Numero', async (req, res) => {
   const elemento_Numero = req.params.elemento_Numero;
-  await getNotificationsBoletinaje(req, res, elemento_Numero);
+  await getNotifications(req, res, elemento_Numero);
 });
 
 //-------------------------------------------------------------> Endpoints Mapas
