@@ -204,10 +204,11 @@ app.get('/maps/vigilancia/punto', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaPuntoVigilancia.html'));
 });
 
-// 
+// Mapa de rastreo
 app.get('/maps/vigilancia/rastreo', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaRastreo.html'));
 });
+//http://localhost:3000/maps/vigilancia/rastreo?elementoId=80000
 
 
 
