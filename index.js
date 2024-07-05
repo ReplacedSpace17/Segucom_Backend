@@ -85,7 +85,7 @@ const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, 
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION MAPS
 const { getGeocercas , getGeocercasID} = require('./Functions/Maps/Function_region');
-const { LocalizarElemento, UpdateUbicacion, LocalizarTodosElemento} = require('./Functions/Maps/Function_elemento');
+const { LocalizarElemento, UpdateUbicacion, LocalizarTodosElemento, GetRastreoElemento} = require('./Functions/Maps/Function_elemento');
 const {getPuntosVigilancia, getElementosAsignados, getPuntosVigilanciaByID} = require('./Functions/Maps/FunctionPuntoVigilancia');
 const { Console } = require('console');
 
@@ -153,6 +153,7 @@ app.get('/segucom/api/maps/elementos/all', async (req, res) => {
 
 // Actualizar ubicación de un elemento por ID
 app.put('/segucom/api/maps/elemento/:id', async (req, res) => {
+  
   const id = req.params.id;
   const data = req.body;
   await UpdateUbicacion(req, res, data, id);
@@ -173,6 +174,12 @@ app.get('/segucom/api/maps/puntosvigilancia/elementos/:id', async (req, res) => 
 app.get('/segucom/api/maps/puntosvigilancia/:id', async (req, res) => {
   const id = req.params.id;
   await getPuntosVigilanciaByID(req, res, id);
+});
+
+//Ruta para obtener el rastreo de un elemento
+app.get('/segucom/api/maps/elemento/:id/rastreo', async (req, res) => {
+  const id = req.params.id; //numero de elemento
+  await GetRastreoElemento(req, res, id);
 });
 
 //-------------------------------------------------------------> Rutas de mapas
@@ -196,6 +203,9 @@ app.get('/maps/elementos/geocerca', (req, res) => {
 app.get('/maps/vigilancia/punto', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaPuntoVigilancia.html'));
 });
+
+
+
 
 //-------------------------------------------------------------> Rutas de fotos
 // Ruta para enviar

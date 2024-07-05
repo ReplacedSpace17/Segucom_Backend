@@ -79,26 +79,108 @@ function LocalizarTodosElemento(req, res) {
     });
 }
 
-//modificar ubicacion
-function UpdateUbicacion(req, res, data, Num_tel) {
-    const query = 'UPDATE ELEMENTO SET ELEMENTO_LATITUD = ?, ELEMENTO_LONGITUD = ?, ELEMENTO_ULTIMALOCAL= ? WHERE ELEMENTO_TELNUMERO = ?';
-  
 
-    connection.query(query, [data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL, Num_tel], (error, results) => {
+function VerifyMonitoreoRondin(Num_tel) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT ELEMENTO_RONDIN FROM ELEMENTO WHERE ELEMENTO_TELNUMERO = ?';
+        console.log('Verificando monitoreo de rondín para elemento: ' + Num_tel);
+        connection.query(query, [Num_tel], (error, results) => {
+            if (error) {
+                console.error('Error al verificar monitoreo de rondín:', error);
+                reject(error);
+            } else {
+                console.log(results);
+                if (results.length > 0 && results[0].ELEMENTO_RONDIN === 1) {
+                    console.log('Elemento ' + Num_tel + ' tiene monitoreo de rondín activado');
+                    resolve(true);
+                } else {
+                    console.log('Elemento ' + Num_tel + ' no tiene monitoreo de rondín activado');
+                    resolve(false);
+                }
+            }
+        });
+    });
+}
+
+
+function AddUbicacionHistorial(req, res, numeroElemento, lat, long, time) {
+    // Obtener la fecha y hora actual
+    const fechaHora = new Date().toISOString().slice(0, 19).replace('T', ' '); // Formato YYYY-MM-DD HH:MM:SS
+
+    // Construir el objeto de ubicación en formato {lat: VALUE, lon: VALUE}
+    const ubicacion = { lat: lat, lon: long };
+    
+    // Construir la consulta SQL para insertar en HISTO_UBICA
+    const query = 'INSERT INTO HISTO_UBICA (ELEMENTO_NUMERO, HISTO_FECHA, HISTO_UBICACION) VALUES (?, ?, ?)';
+  
+    connection.query(query, [numeroElemento, time, JSON.stringify(ubicacion)], (error, results) => {
         if (error) {
-            res.status(500).send(error);
+            
         } else {
-            console.log('Ubicacion actualizada de elemento: ' + Num_tel + ' a latitud: ' + data.ELEMENTO_LATITUD + ' y longitud: ' + data.ELEMENTO_LONGITUD + 'HORA: '+ data.Hora);
-            res.json(results);
+            console.log('Registro de ubicación histórica agregado para elemento número: ' + numeroElemento);
+           
         }
     });
 }
 
 
+//modificar ubicacion
+async function UpdateUbicacion(req, res, data, Num_tel) {
+    try {
+        const rondin = await VerifyMonitoreoRondin(Num_tel);
+        console.log('Desea rondin?: ' + rondin);
+
+        const query = 'UPDATE ELEMENTO SET ELEMENTO_LATITUD = ?, ELEMENTO_LONGITUD = ?, ELEMENTO_ULTIMALOCAL = ? WHERE ELEMENTO_TELNUMERO = ?';
+    
+        connection.query(query, [data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL, Num_tel], (error, results) => {
+            if (error) {
+                res.status(500).send(error);
+            } else {
+                console.log('Ubicación actualizada de elemento: ' + Num_tel + ' a latitud: ' + data.ELEMENTO_LATITUD + ' y longitud: ' + data.ELEMENTO_LONGITUD + ' HORA: ' + data.Hora);
+                if (rondin === true) {
+                    AddUbicacionHistorial(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL);
+                }
+                res.json(results);
+            }
+        });
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
+
+async function GetRastreoElemento(req, res, numeroElemento) {
+    try {
+        const query = 'SELECT * FROM HISTO_UBICA WHERE ELEMENTO_NUMERO = ?';
+        connection.query(query, [numeroElemento], (error, results) => {
+            if (error) {
+                console.error('Error al obtener el historial de ubicaciones:', error);
+                return res.status(500).json({ error: 'Error de servidor al obtener el historial de ubicaciones' });
+            }
+
+            const formattedResults = results.map(row => {
+                const ubicacion = JSON.parse(row.HISTO_UBICACION);
+                return {
+                    HISTO_ID: row.HISTO_ID,
+                    ELEMENTO_NUMERO: row.ELEMENTO_NUMERO,
+                    HISTO_FECHA: row.HISTO_FECHA,
+                    LATITUD: ubicacion.lat,
+                    LONGITUD: ubicacion.lon
+                };
+            });
+
+            res.json(formattedResults);
+        });
+    } catch (error) {
+        console.error('Error inesperado:', error);
+        res.status(500).json({ error: 'Error de servidor inesperado' });
+    }
+}
+
 
 module.exports = {
     LocalizarElemento,
     UpdateUbicacion,
-    LocalizarTodosElemento
+    LocalizarTodosElemento,
+    GetRastreoElemento
 };
 
