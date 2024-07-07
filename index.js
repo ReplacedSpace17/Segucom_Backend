@@ -129,9 +129,11 @@ app.get('/segucom/api/user/personal/app/:id', async (req, res) => {
 });
 
 //obtener el conteo de boletines no confirmados
+//http://localhost:3000/segucom/api/user/boletines/80000
 app.get('/segucom/api/user/boletines/:elemento_Numero', async (req, res) => {
   const elemento_Numero = req.params.elemento_Numero;
   await getNotifications(req, res, elemento_Numero);
+  console.log('Obteniendo notificaciones de boletines para el elemento: ' + elemento_Numero);
 });
 
 //-------------------------------------------------------------> Endpoints Mapas

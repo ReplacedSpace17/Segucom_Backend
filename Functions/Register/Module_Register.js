@@ -117,34 +117,39 @@ async function comparePasswords(plainPassword, hashedPassword) {
 
 // Función para realizar el inicio de sesión
 async function loginUser(req, res, telefono, clave) {
-
-    
-
-    const loginScript = 'SELECT * FROM PERFIL_ELEMENTO WHERE ELEMENTO_TELNUMERO = ?';
+    const loginScript = `
+        SELECT * 
+        FROM PERFIL_ELEMENTO 
+        JOIN ELEMENTO ON PERFIL_ELEMENTO.ELEMENTO_NUMERO = ELEMENTO.ELEMENTO_NUMERO
+        WHERE PERFIL_ELEMENTO.ELEMENTO_TELNUMERO = ? 
+        AND ELEMENTO.ELEMENTO_ACTIVO = 1
+    `;
 
     // Ejecutar la consulta para buscar el usuario por número de teléfono y clave
-    connection.query(loginScript, [telefono, clave], async (error, results) => {
+    connection.query(loginScript, [telefono], async (error, results) => {
         if (error) {
             console.error('Error al realizar el inicio de sesión', error);
             return res.status(500).json({ error: 'Error de servidor al realizar el inicio de sesión' });
         }
 
-        // Verificar si se encontró un usuario con las credenciales proporcionadas
+        // Verificar si se encontró un usuario con las credenciales proporcionadas y está activo
         if (results.length === 1) {
             console.log('data:', results[0]);
             const isPasswordMatch = await comparePasswords(clave, results[0].PERFIL_CLAVE);
             if (isPasswordMatch) {
                 res.status(200).json(results[0]);
+            } else {
+                console.log('Clave incorrecta');
+                res.status(401).json({ error: 'Credenciales inválidas' });
             }
             console.log('Inicio de sesión exitoso del usuario:', results[0]);
-            // Devolver el nombre junto con el resto de los datos del usuario
-            
         } else {
-            console.log('Credenciales inválidas');
-            res.status(401).json({ error: 'Credenciales inválidas' });
+            console.log('Credenciales inválidas o usuario inactivo');
+            res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
         }
     });
 }
+
 
 
 
