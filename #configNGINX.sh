@@ -5,8 +5,8 @@ sudo apt install nginx
 sudo mkdir -p /etc/nginx/ssl
 
 #copiar los certificados
-sudo cp /home/rs17/GitHub/Segucom/BackendFESPE/certificates/PrivateKey.pem /etc/nginx/ssl/
-sudo cp /home/rs17/GitHub/Segucom/BackendFESPE/certificates/segubackend.com_2024.crt /etc/nginx/ssl/
+sudo cp /home/sermex-segu/BackendSegucom/certificates/PrivateKey.pem /etc/nginx/ssl/
+sudo cp /home/sermex-segu/BackendSegucom/certificates/segubackend.com_2024.crt /etc/nginx/ssl/
 
 #crear el archivo de configuracion
 sudo nano /etc/nginx/sites-available/segubackend
