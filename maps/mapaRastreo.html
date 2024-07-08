@@ -5,30 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa rastreo</title>
     <style>
+        *{
+            font-family: Arial, Helvetica, sans-serif;
+        }
         #map {
             width: 100vw;
             height: 100vh;
         }
+        #control-panel {
+            position: absolute;
+            width: 180px;
+            top: 100px;
+            left: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #00000065;
+            z-index: 1000;
+            backdrop-filter: blur(10px); /* Fondo borroso */
+            background-color: rgba(19, 19, 19, 0.205); /* Opacidad para mejorar legibilidad */
+        }
+        select{
+            margin: 5px 0;
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 13px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        input[type="time"], button {
+            margin: 5px 0;
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 13px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        select:focus, input[type="time"]:focus, button:focus {
+            outline: none;
+            border-color: #4CAF50; /* Color de borde al enfocar */
+            box-shadow: 0 0 5px #4CAF50; /* Sombra al enfocar */
+        }
+        button {
+            cursor: pointer;
+            background-color: #184f8f; /* Color de fondo del botón */
+            color: #fff; /* Color de texto del botón */
+            font-weight: bold;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #123c6b; /* Color de fondo al pasar el mouse */
+        }
     </style>
-   
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places"></script>
 </head>
 <body>
     <div id="map"></div>
+    <div id="control-panel">
+        <label for="year-select">Año:</label>
+        <select id="year-select"></select>
+        <label for="month-select">Mes:</label>
+        <select id="month-select"></select>
+        <label for="day-select">Día:</label>
+        <select id="day-select"></select>
+        <label for="start-time">Hora de inicio:</label>
+        <input type="time" id="start-time" step="60">
+        <label for="end-time">Hora de fin:</label>
+        <input type="time" id="end-time" step="60">
+        <button id="apply-filters">Aplicar filtros</button>
+    </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const elementoId = parseInt(urlParams.get('elementoId'));
-        let map, selectedElemento;
-
+        let map, selectedElemento, historialUbicaciones, routePath;
+        const markers = [];
         const backendUrl = 'http://192.168.1.90:3000';
 
         const fetchElementos = async () => {
             try {
                 const response = await axios.get(`${backendUrl}/segucom/api/maps/elemento/${elementoId}/rastreo`);
-                const historialUbicaciones = response.data;
+                historialUbicaciones = response.data;
 
                 if (historialUbicaciones.length > 0) {
                     selectedElemento = historialUbicaciones[0]; // Tomamos el primer punto como referencia
@@ -36,43 +101,8 @@
                     // Inicializar el mapa
                     initMap();
 
-                    // Dibujar la ruta con los puntos de ubicación
-                    const routeCoordinates = historialUbicaciones.map(loc => ({
-                        lat: parseFloat(loc.LATITUD),
-                        lng: parseFloat(loc.LONGITUD),
-                        date: new Date(loc.HISTO_FECHA)
-                    }));
-
-                    const routePath = new google.maps.Polyline({
-                        path: routeCoordinates,
-                        geodesic: true,
-                        strokeColor: '#005A93', // Color de la línea en azul oscuro
-                        strokeOpacity: 0.8,
-                        strokeWeight: 8 // Grosor de la línea
-                    });
-
-                    routePath.setMap(map);
-
-                    // Agregar marcadores y infoWindows
-                    routeCoordinates.forEach((coord, index) => {
-                        const marker = new google.maps.Marker({
-                            position: { lat: coord.lat, lng: coord.lng },
-                            map: map,
-                            title: `Fecha y hora: ${coord.date.toLocaleString('es-ES')}`
-                        });
-
-                        marker.addListener('mouseover', () => {
-                            const infoWindow = new google.maps.InfoWindow({
-                                content: `<div><strong>Fecha y hora:</strong><br>${coord.date.toLocaleString('es-ES')}</div>`
-                            });
-                            infoWindow.open(map, marker);
-                        });
-
-                        marker.addListener('mouseout', () => {
-                            infoWindow.close();
-                        });
-                    });
-
+                    // Llenar el dropdown de días
+                    populateDays(historialUbicaciones);
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -100,6 +130,155 @@
             });
         };
 
+        const populateDays = (data) => {
+            const yearSelect = document.getElementById('year-select');
+            const monthSelect = document.getElementById('month-select');
+            const daySelect = document.getElementById('day-select');
+
+            // Obtener años únicos
+            const uniqueYears = [...new Set(data.map(loc => loc.HISTO_FECHA.split(' ')[0].split('-')[0]))];
+            uniqueYears.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+
+            // Obtener meses únicos
+            const uniqueMonths = [...new Set(data.map(loc => loc.HISTO_FECHA.split(' ')[0].split('-')[1]))];
+            uniqueMonths.forEach(month => {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+
+            // Obtener días únicos
+            const uniqueDays = [...new Set(data.map(loc => loc.HISTO_FECHA.split(' ')[0].split('-')[2]))];
+            uniqueDays.forEach(day => {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = day;
+                daySelect.appendChild(option);
+            });
+
+            // Escuchar cambios en los selects de año y mes para actualizar días
+            yearSelect.addEventListener('change', populateDays);
+            monthSelect.addEventListener('change', populateDays);
+            daySelect.addEventListener('change', populateTimes);
+            yearSelect.dispatchEvent(new Event('change'));
+            monthSelect.dispatchEvent(new Event('change'));
+        };
+
+        const populateTimes = () => {
+            const selectedYear = document.getElementById('year-select').value;
+            const selectedMonth = document.getElementById('month-select').value;
+            const selectedDay = document.getElementById('day-select').value;
+
+            const filteredByDate = historialUbicaciones.filter(loc => {
+                const dateParts = loc.HISTO_FECHA.split(' ')[0].split('-');
+                return dateParts[0] === selectedYear && dateParts[1] === selectedMonth && dateParts[2] === selectedDay;
+            });
+
+            // Resto del código para llenar las horas y aplicar filtros
+            const times = filteredByDate.map(loc => loc.HISTO_FECHA.split(' ')[1]);
+
+            const startTime = document.getElementById('start-time');
+            const endTime = document.getElementById('end-time');
+
+            startTime.min = times[0];
+            startTime.max = times[times.length - 1];
+            endTime.min = times[0];
+            endTime.max = times[times.length - 1];
+
+            startTime.value = times[0];
+            endTime.value = times[times.length - 1];
+        };
+
+        const drawRoute = (data) => {
+            const routeCoordinates = data.map(loc => ({
+                lat: parseFloat(loc.LATITUD),
+                lng: parseFloat(loc.LONGITUD),
+                date: new Date(loc.HISTO_FECHA)
+            }));
+
+            if (routePath) {
+                routePath.setMap(null);
+            }
+
+            routePath = new google.maps.Polyline({
+                path: routeCoordinates,
+                geodesic: true,
+                strokeColor: '#005A93', // Color de la línea en azul oscuro
+                strokeOpacity: 0.8,
+                strokeWeight: 8 // Grosor de la línea
+            });
+
+            routePath.setMap(map);
+
+            // Limpiar marcadores anteriores
+            markers.forEach(marker => marker.setMap(null));
+            markers.length = 0;
+
+            // Agregar marcadores y infoWindows
+            routeCoordinates.forEach((coord, index) => {
+                const marker = new google.maps.Marker({
+                    position: { lat: coord.lat, lng: coord.lng },
+                    map: map,
+                    title: `Fecha y hora: ${coord.date.toLocaleString('es-ES')}`
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<div><strong>Fecha y hora:</strong><br>${coord.date.toLocaleString('es-ES')}</div>`
+                });
+
+                marker.addListener('mouseover', () => {
+                    infoWindow.open(map, marker);
+                });
+
+                marker.addListener('mouseout', () => {
+                    infoWindow.close();
+                });
+
+                markers.push(marker);
+            });
+        };
+
+        const applyFilters = () => {
+            const selectedYear = document.getElementById('year-select').value;
+            const selectedMonth = document.getElementById('month-select').value;
+            const selectedDay = document.getElementById('day-select').value;
+            const startTime = document.getElementById('start-time').value;
+            const endTime = document.getElementById('end-time').value;
+
+            const filteredData = historialUbicaciones.filter(loc => {
+                const [date, time] = loc.HISTO_FECHA.split(' ');
+                const dateParts = date.split('-');
+                return dateParts[0] === selectedYear && dateParts[1] === selectedMonth && dateParts[2] === selectedDay
+                    && time >= startTime && time <= endTime;
+            });
+
+            if (filteredData.length > 0) {
+                // Centrar el mapa en los nuevos puntos filtrados
+                const bounds = new google.maps.LatLngBounds();
+                filteredData.forEach(loc => {
+                    bounds.extend(new google.maps.LatLng(parseFloat(loc.LATITUD), parseFloat(loc.LONGITUD)));
+                });
+
+                map.fitBounds(bounds);
+
+                // Dibujar la nueva ruta filtrada
+                drawRoute(filteredData);
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin resultados',
+                    text: 'No se encontraron puntos que coincidan con los filtros aplicados.',
+                });
+            }
+        };
+
+        document.getElementById('apply-filters').addEventListener('click', applyFilters);
         document.addEventListener('DOMContentLoaded', fetchElementos);
     </script>
 </body>

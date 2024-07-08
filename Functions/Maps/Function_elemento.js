@@ -1,5 +1,6 @@
 const connection = require('../../SQL_CONECTION');
 const { v4: uuidv4 } = require('uuid');
+const moment = require('moment-timezone');
 
 // Generate a unique ID
 function UID() {
@@ -260,9 +261,11 @@ async function GetRastreoElemento(req, res, numeroElemento) {
                 return {
                     HISTO_ID: row.HISTO_ID,
                     ELEMENTO_NUMERO: row.ELEMENTO_NUMERO,
-                    HISTO_FECHA: row.HISTO_FECHA,
+                    HISTO_FECHA: moment.utc(row.HISTO_FECHA).tz('America/Mexico_City').format('YYYY-MM-DD HH:mm'),
                     LATITUD: ubicacion.lat,
                     LONGITUD: ubicacion.lon
+
+                    
                 };
             });
 

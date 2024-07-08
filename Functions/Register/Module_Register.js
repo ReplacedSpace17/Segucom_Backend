@@ -204,31 +204,25 @@ async function getInfoPerfilApp(req, res, TelNum) {
     });
 }
 
-function updatePerfilElemento(req, res, data, id) {
+function updatePerfilElemento(req, res, password, elemento_Numero) {
+    const hashedPassword = hashFunction(password);
     const query = `
         UPDATE PERFIL_ELEMENTO 
         SET 
-            PERFIL_NOMBRE = ?, 
-            PERFIL_CLAVE = ?, 
-            ELEMENTO_NUMERO = ?, 
-            ELEMENTO_TELNUMERO = ? 
+            PERFIL_CLAVE = ?,  
         WHERE 
-        ELEMENTO_TELNUMERO = ?
+        ELEMENTO_NUMERO = ?
     `;
 
     connection.query(query, [
-        data.PERFIL_NOMBRE,
-        data.PERFIL_CLAVE,
-        data.PERFIL_ANDROID,
-        data.ELEMENTO_NUMERO,
-        data.ELEMENTO_TELNUMERO,
-        id
+        hashedPassword,
+        elemento_Numero
     ], (error, results) => {
         if (error) {
             res.status(500).send(error);
         } else {
-            console.log(`Información actualizada de perfil: ${data.PERFIL_ID}`);
-            res.json(results);
+            console.log(`Información actualizada de perfil: ${elemento_Numero}`);
+            res.status(200).send('Información actualizada');
         }
     });
 }

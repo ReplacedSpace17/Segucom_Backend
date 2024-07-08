@@ -110,10 +110,10 @@ app.post('/segucom/api/login', async (req, res) => {
 });
 
 // Actualizar perfil de un elemento
-app.put('/segucom/api/user/:id', async (req, res) => {
-  const data = req.body;
-  const id = req.params.id;
-  await updatePerfilElemento(req, res, data, id);
+app.put('/segucom/api/user/:numero_elemento/:password', async (req, res) => {
+ const password = req.params.password;
+  const numero_elemento = req.params.numero_elemento;
+  await updatePerfilElemento(req, res, data, password, numero_elemento);
 });
 
 // Obtener información de usuario por teléfono
@@ -186,8 +186,8 @@ app.get('/segucom/api/maps/puntosvigilancia/:id', async (req, res) => {
 
 //Ruta para obtener el rastreo de un elemento
 app.get('/segucom/api/maps/elemento/:id/rastreo', async (req, res) => {
-  const id = req.params.id; //numero de elemento
-  await GetRastreoElemento(req, res, id);
+  const numero_Elemento = req.params.id; //numero de elemento
+  await GetRastreoElemento(req, res, numero_Elemento);
 });
 
 //-------------------------------------------------------------> Rutas de mapas
