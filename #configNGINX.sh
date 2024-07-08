@@ -53,6 +53,7 @@ sudo nginx -t
 #reiniciar el servicio
 sudo systemctl enable nginx
 sudo systemctl restart nginx
+sudo systemctl status nginx
 
 
 #validar que el servicio este corriendo
