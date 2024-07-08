@@ -28,6 +28,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+
 // Configuración de session
 app.use(session({
   secret: 'tu_secreto',
