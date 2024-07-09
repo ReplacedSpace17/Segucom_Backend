@@ -94,6 +94,7 @@
             try {
                 const response = await axios.get(`${backendUrl}/segucom/api/maps/elemento/${elementoId}/rastreo`);
                 historialUbicaciones = response.data;
+                console.log(historialUbicaciones);
 
                 if (historialUbicaciones.length > 0) {
                     selectedElemento = historialUbicaciones[0]; // Tomamos el primer punto como referencia

@@ -209,9 +209,11 @@ function isPointInPolygon(point, polygon) {
   
       if (dentroDeGeocerca) {
         console.log(`El elemento número ${numeroElemento} está dentro de una geocerca`);
+        return true;
         //res.status(200).send(`El elemento número ${numeroElemento} está dentro de una geocerca`);
       } else {
         console.log(`El elemento número ${numeroElemento} NO está dentro de una geocerca`);
+        return false;
         //res.status(200).send(`El elemento número ${numeroElemento} NO está dentro de una geocerca`);
       }
     });
@@ -227,7 +229,7 @@ async function UpdateUbicacion(req, res, data, Num_tel) {
 
         const query = 'UPDATE ELEMENTO SET ELEMENTO_LATITUD = ?, ELEMENTO_LONGITUD = ?, ELEMENTO_ULTIMALOCAL = ? WHERE ELEMENTO_TELNUMERO = ?';
     
-        connection.query(query, [data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL, Num_tel], (error, results) => {
+        connection.query(query, [data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL, Num_tel], async (error, results) => {
             if (error) {
                 res.status(500).send(error);
             } else {
@@ -237,7 +239,11 @@ async function UpdateUbicacion(req, res, data, Num_tel) {
                 }
                 if (zona === true) {
                     // Verificar si el elemento está dentro de una geocerca
-                    verifyElementoDentroGeocerca(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL)
+                  const esta = await verifyElementoDentroGeocerca(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL);
+                    if (esta===false) {
+                        //cambiar tabla ppor 
+                        AddUbicacionHistorial(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL);
+                    }
                 }
                 res.json(results);
             }

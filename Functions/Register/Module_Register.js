@@ -205,13 +205,18 @@ async function getInfoPerfilApp(req, res, TelNum) {
 }
 
 function updatePerfilElemento(req, res, password, elemento_Numero) {
+    console.log('Actualizando información de perfil para el elemento:', elemento_Numero);
+    console.log('Nueva contraseña:', password);
+
     const hashedPassword = hashFunction(password);
+    console.log('Clave hasheada:', hashedPassword);
+    
     const query = `
         UPDATE PERFIL_ELEMENTO 
         SET 
-            PERFIL_CLAVE = ?,  
+            PERFIL_CLAVE = ?  
         WHERE 
-        ELEMENTO_NUMERO = ?
+            ELEMENTO_NUMERO = ?
     `;
 
     connection.query(query, [
@@ -221,7 +226,7 @@ function updatePerfilElemento(req, res, password, elemento_Numero) {
         if (error) {
             res.status(500).send(error);
         } else {
-            console.log(`Información actualizada de perfil: ${elemento_Numero}`);
+            console.log(`Información actualizada de perfil: ${elemento_Numero} + ${hashedPassword}`);
             res.status(200).send('Información actualizada');
         }
     });
