@@ -1,5 +1,6 @@
 const connection = require('../../SQL_CONECTION');
 const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
 
 function generarID() {
     return uuidv4();
@@ -125,32 +126,48 @@ async function loginUser(req, res, telefono, clave) {
         AND ELEMENTO.ELEMENTO_ACTIVO = 1
     `;
 
-    // Ejecutar la consulta para buscar el usuario por número de teléfono y clave
     connection.query(loginScript, [telefono], async (error, results) => {
         if (error) {
             console.error('Error al realizar el inicio de sesión', error);
             return res.status(500).json({ error: 'Error de servidor al realizar el inicio de sesión' });
         }
 
-        // Verificar si se encontró un usuario con las credenciales proporcionadas y está activo
         if (results.length === 1) {
-            console.log('data:', results[0]);
             const isPasswordMatch = await comparePasswords(clave, results[0].PERFIL_CLAVE);
             if (isPasswordMatch) {
-                res.status(200).json(results[0]);
+                // Generar un token de autenticación
+                const token = jwt.sign({ telefono: results[0].ELEMENTO_TELNUMERO }, 'secretKey');
+
+
+
+                //mostrar token
+                console.log(token);
+                res.status(200).json({ ...results[0], token });
             } else {
-                console.log('Clave incorrecta');
                 res.status(401).json({ error: 'Credenciales inválidas' });
             }
-            console.log('Inicio de sesión exitoso del usuario:', results[0]);
         } else {
-            console.log('Credenciales inválidas o usuario inactivo');
             res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
         }
     });
 }
 
+function verifyToken(req, res, tokent) {
+    const token = req.headers['authorization'];
 
+    if (!token) {
+        return res.status(403).json({ error: 'No se proporcionó un token' });
+    }
+
+    jwt.verify(token, 'secretKey', (err, decoded) => {
+        if (err) {
+            console.error('Error al verificar el token:', err);
+            return res.status(401).json({ error: 'Token inválido' });
+        }
+        req.usuario = decoded; // Decodificado y disponible en las solicitudes
+        next();
+    });
+}
 
 
 async function getInfoPerfilApp(req, res, TelNum) {
@@ -240,7 +257,7 @@ async function getNotifications(req, res, numero_Elemento) {
         FROM 
             ALER_ELEMENTO 
         WHERE 
-            ALELEM_CONFIRM = 0 AND 
+            ALELEM_CONFIRM = 0 AND ALELEM_ENVIO = 1 AND
             ELEMENTO_NUMERO = ?;
     `;
 
@@ -250,7 +267,7 @@ async function getNotifications(req, res, numero_Elemento) {
         FROM 
             CONSIGNA_ELEMENTO 
         WHERE 
-            CATELEM_CONFIRM = 0 AND 
+            CATELEM_CONFIRM = 0 AND CATELEM_ENVIO = 1 AND
             ELEMENTO_NUMERO = ?;
     `;
 
@@ -277,5 +294,5 @@ async function getNotifications(req, res, numero_Elemento) {
 
 
 module.exports = {
-    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications
+    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken
 };

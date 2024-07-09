@@ -12,7 +12,7 @@ const nodemailer = require('nodemailer');
 const http = require('http');
 const app = express();
 const port = 3000;
-
+const jwt = require('jsonwebtoken');
 // Configuración de CORS
 const corsOptions = {
   origin: ['https://segucom.mx', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500', '*', 'http://192.168.1.68/', 'http://localhost:3000'],
@@ -110,6 +110,32 @@ app.post('/segucom/api/login', async (req, res) => {
   const { telefono, clave } = req.body;
   await loginUser(req, res, telefono, clave);
 });
+
+
+function verifyToken(req, res, next) {
+  const token = req.headers['authorization'];
+
+  if (!token) {
+      return res.status(403).json({ error: 'No se proporcionó un token' });
+  }
+
+  jwt.verify(token, 'secretKey', (err, decoded) => {
+      if (err) {
+          console.error('Error al verificar el token:', err);
+          return res.status(401).json({ error: 'Token inválido' });
+      }
+      req.usuario = decoded; // Decodificado y disponible en las solicitudes
+      next();
+  });
+}
+// Ejemplo de una ruta protegida que verifica el token
+app.get('/segucom/api/data-protegida', verifyToken, (req, res) => {
+  // El token ya ha sido verificado por el middleware verifyToken
+  // Puedes acceder a req.usuario para obtener datos del usuario decodificados desde el token
+  console.log('Acceso autorizado a datos protegidos:', req.usuario);
+  res.json({ message: 'Acceso autorizado a datos protegidos', usuario: req.usuario });
+});
+
 
 // Actualizar perfil de un elemento
 app.put('/segucom/api/user/:numero_elemento/:password', async (req, res) => {
