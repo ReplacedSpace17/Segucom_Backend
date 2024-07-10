@@ -96,7 +96,7 @@ const { addImagePath, getImages} = require('./Functions/Images/Module_Images');
 const { ValidarAdministrador,
   CrearEncabezado,
   ValidarElementoGrupo,
-  PasarLista, GetElementosAsignados} = require('./Functions/PaseLista/Function_pase_lista');
+  PasarLista, GetElementosAsignados, getStatusElementos} = require('./Functions/PaseLista/Function_pase_lista');
 
 //-------------------------------------------------------------> Endpoints App
 // Agregar un nuevo usuario
@@ -369,7 +369,12 @@ app.get('/segucom/api/pase_de_lista/elementos/:id_Grupo', async (req, res) => {
 });
 //http://localhost:3000/segucom/api/pase_de_lista/elementos/2
 
+//obtener la lista de elementos de un grupo
+app.get('/segucom/api/pase_de_lista/elementos/status/elementos', async (req, res) => {
 
+  await getStatusElementos(req, res);
+
+});
 
 
 //------ayuda

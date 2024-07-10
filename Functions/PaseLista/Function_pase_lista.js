@@ -117,11 +117,33 @@ function GetElementosAsignados(req, res, id_Grupo) {
     });
 }
 
+function getStatusElementos(req, res) {
+    const query = `
+        SELECT 
+           *
+        FROM 
+            ESTAT_ELEMENTO
+    `;
+    console.log('ejeuctando query');
+    
+    connection.query(query, (error, results) => {
+        if (error) {
+            res.status(500).send(error);
+        } else {
+            if (results.length > 0) {
+                res.json(results);
+            } else {
+                res.status(404).send('No se encontraron registros en la tabla ESTAT_ELEMENTO.');
+            }
+        }
+    });
+}
 
 module.exports = {
     ValidarAdministrador,
     CrearEncabezado,
     ValidarElementoGrupo,
     PasarLista,
-    GetElementosAsignados
+    GetElementosAsignados,
+    getStatusElementos
 };
