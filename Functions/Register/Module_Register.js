@@ -54,6 +54,75 @@ async function getInformationPerfil(req, res, TelNum){
 
 }
 
+
+//Funcion para validar el registro
+async function ValidarRegistro(req, res, numeroTelefono, numeroElemento) {
+    console.log('Validando registro para el número de teléfono:', numeroTelefono, 'y número de elemento:', numeroElemento);
+
+    // Consulta para verificar si el número de teléfono existe
+    const checkPhoneQuery = `
+        SELECT * FROM PERFIL_ELEMENTO
+        WHERE ELEMENTO_TELNUMERO = ?`;
+
+    // Consulta para verificar si el número de elemento existe
+    const checkElementQuery = `
+        SELECT * FROM PERFIL_ELEMENTO
+        WHERE ELEMENTO_NUMERO = ?`;
+
+    // Ejecutar la primera consulta de verificación para el número de teléfono
+    connection.query(checkPhoneQuery, [numeroTelefono], (error, phoneResults) => {
+        if (error) {
+            console.error('Error al verificar el número de teléfono', error);
+            return res.status(500).json({ message: 'Error de servidor al verificar el número de teléfono' });
+        }
+
+        if (phoneResults.length === 0) {
+            console.log('El número de teléfono no existe en la base de datos');
+            return res.status(404).json({ message: 'El número de teléfono no existe en la base de datos' });
+        }
+
+        // Ejecutar la segunda consulta de verificación para el número de elemento
+        connection.query(checkElementQuery, [numeroElemento], (error, elementResults) => {
+            if (error) {
+                console.error('Error al verificar el número de elemento', error);
+                return res.status(500).json({ message: 'Error de servidor al verificar el número de elemento' });
+            }
+
+            if (elementResults.length === 0) {
+                console.log('El número de elemento no existe en la base de datos');
+                return res.status(404).json({ message: 'El número de elemento no existe en la base de datos' });
+            }
+
+            // Consulta para verificar si el número de teléfono y el número de elemento coinciden y que PERFIL_CLAVE esté vacío
+            const checkPhoneAndElementQuery = `
+                SELECT * FROM PERFIL_ELEMENTO
+                WHERE ELEMENTO_TELNUMERO = ? 
+                AND ELEMENTO_NUMERO = ?
+                AND PERFIL_CLAVE IS NULL`;
+
+            // Ejecutar la tercera consulta de verificación
+            connection.query(checkPhoneAndElementQuery, [numeroTelefono, numeroElemento], (error, results) => {
+                if (error) {
+                    console.error('Error al verificar el número de teléfono y el número de elemento', error);
+                    return res.status(500).json({ message: 'Error de servidor al verificar el número de teléfono y el número de elemento' });
+                }
+
+                if (results.length > 0) {
+                    console.log('Validación exitosa para el número de teléfono:', numeroTelefono);
+                    return res.status(200).json({ message: 'Validación exitosa', numeroTelefono: numeroTelefono, numeroElemento: numeroElemento, 
+                        Nombre: results[0].PERFIL_NOMBRE
+                    });
+                } else {
+                    console.log('PERFIL_CLAVE no está vacío para el número de teléfono:', numeroTelefono);
+                    return res.status(404).json({ message: 'PERFIL_CLAVE no está vacío para el número de teléfono y el número de elemento proporcionados' });
+                }
+            });
+        });
+    });
+}
+
+
+
 // Función para actualizar el perfil de un usuario
 async function addUserPersonal(req, res, data) {
     console.log('Agregando información personal para el usuario:', data);
@@ -294,5 +363,5 @@ async function getNotifications(req, res, numero_Elemento) {
 
 
 module.exports = {
-    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken
+    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken, ValidarRegistro
 };

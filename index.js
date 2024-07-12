@@ -83,7 +83,9 @@ const uploadBoletines = multer({ storage: storage('boletines') });
 const uploadConsignas = multer({ storage: storage('consignas') });
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
-const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications } = require('./Functions/Register/Module_Register');
+const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications,
+  ValidarRegistro
+ } = require('./Functions/Register/Module_Register');
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION MAPS
 const { getGeocercas , getGeocercasID} = require('./Functions/Maps/Function_region');
@@ -99,11 +101,20 @@ const { ValidarAdministrador,
   PasarLista, GetElementosAsignados, getStatusElementos} = require('./Functions/PaseLista/Function_pase_lista');
 
 //-------------------------------------------------------------> Endpoints App
+
+// verificar si el numero de telefono ya esta registrado
+app.get('/segucom/api/user/validar/:telefono/:elemento', async (req, res) => {
+  const telefono = req.params.telefono;
+  const elemento = req.params.elemento;
+  await ValidarRegistro(req, res, telefono, elemento);
+});
+
 // Agregar un nuevo usuario
 app.post('/segucom/api/user', async (req, res) => {
   const data = req.body;
   await addUserPersonal(req, res, data);
 });
+
 
 // Iniciar sesión
 app.post('/segucom/api/login', async (req, res) => {
@@ -400,16 +411,17 @@ const httpsOptions = {
 };
 
 // Crear servidor HTTPS
-
+/*
 https.createServer(httpsOptions, app).listen(port, () => {
   console.log(`Servidor HTTPS corriendo en https://0.0.0.0:${port}`);
 });
+*/
 
-/*
+
 http.createServer(app).listen(port, () => {
   console.log(`Servidor HTTP corriendo en http://0.0.0.0:${port}`);
 });
-*/
+
 //https://segubackend.com:3000/fotos/upload?endpoint=boletines&id_data=1
 //https://segubackend.com:3000/fotos/view?category=Boletines&id_data=1
 //https://segucom.mx/fotos/viewFotos.html?category=Boletines&id_data=1

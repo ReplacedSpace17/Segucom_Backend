@@ -44,6 +44,12 @@ git pull
  sudo systemctl start backendsegucom.service
  sudo systemctl disable backendsegucom.service
 
+git pull
+sudo systemctl enable segucomunication
+sudo systemctl start segucomunication
+sudo systemctl status segucomunication
+sudo systemctl stop segucomunication
+
 
  #invitados c5
 9f@5i2H&7LQA
