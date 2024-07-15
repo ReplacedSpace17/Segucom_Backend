@@ -49,6 +49,7 @@ sudo systemctl enable segucomunication
 sudo systemctl start segucomunication
 sudo systemctl status segucomunication
 sudo systemctl stop segucomunication
+sudo systemctl restart segucomunication
 
 
  #invitados c5

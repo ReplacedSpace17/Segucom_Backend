@@ -263,6 +263,7 @@ app.get('/segucom/web/administrador/chats', (req, res) => {
   res.sendFile(path.join(__dirname, 'Chats', 'AdministradorChats.html'));
 });
 //http://localhost:3000/segucom/web/administrador/chats?elementoId=80000
+//http://segubackend:3000/segucom/web/administrador/chats?elementoId=80000
 
 //-------------------------------------------------------------> Rutas de fotos
 // Ruta para enviar

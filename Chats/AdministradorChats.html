@@ -455,7 +455,7 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const elemento = parseInt(urlParams.get('elementoId'));
-    const backend = 'https://segubackend.com:3001/';
+    const backend = 'https://segubackend.com:3001';
     const socket = io(backend, {
       transports: ['websocket'],
       autoConnect: false,
