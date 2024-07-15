@@ -15,7 +15,7 @@ const port = 3000;
 const jwt = require('jsonwebtoken');
 // Configuración de CORS
 const corsOptions = {
-  origin: ['https://segucom.mx', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500', '*', 'http://192.168.1.68/', 'http://localhost:3000'],
+  origin: ['https://segucom.mx', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500', '*', 'http://192.168.1.68/', 'http://localhost:3000', 'http://:192.168.1.90/'],
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -258,8 +258,11 @@ app.get('/maps/vigilancia/rastreo', (req, res) => {
 });
 //http://localhost:3000/maps/vigilancia/rastreo?elementoId=80000
 
-
-
+//-------------------------------------------------------------> Administrador de chats
+app.get('/segucom/web/administrador/chats', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Chats', 'AdministradorChats.html'));
+});
+//http://localhost:3000/segucom/web/administrador/chats?elementoId=80000
 
 //-------------------------------------------------------------> Rutas de fotos
 // Ruta para enviar
@@ -411,16 +414,18 @@ const httpsOptions = {
 };
 
 // Crear servidor HTTPS
-/*
+
 https.createServer(httpsOptions, app).listen(port, () => {
   console.log(`Servidor HTTPS corriendo en https://0.0.0.0:${port}`);
 });
-*/
 
 
+/*
 http.createServer(app).listen(port, () => {
   console.log(`Servidor HTTP corriendo en http://0.0.0.0:${port}`);
 });
+*/
+
 
 //https://segubackend.com:3000/fotos/upload?endpoint=boletines&id_data=1
 //https://segubackend.com:3000/fotos/view?category=Boletines&id_data=1

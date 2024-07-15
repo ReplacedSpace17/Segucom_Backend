@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="http://localhost:3000/segucom/web/administrador/Estilos.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/react-toastify/7.0.4/ReactToastify.min.css">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<style>
+.App, body {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  .sidebar {
+    width: 30%;
+    background-color: #f1f1f1;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebar-header {
+    background-color: #073560;
+    color: white;
+  
+    margin: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    flex-grow: 0; /* Evita que crezca automáticamente */
+    flex-shrink: 0; /* Evita que se encoja automáticamente */
+  }
+  .sidebar-header h2 {
+    padding: 17px;
+    margin: 0;
+  }
+  
+  .sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    flex-grow: 1; /* Ocupa el espacio restante */
+  }
+  
+  .sidebar li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+  }
+  
+  .sidebar li:hover {
+    background-color: #ddd;
+  }
+  
+  .group-icon {
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+  
+  .chat {
+    width: 70%;
+    overflow-y: auto;
+    position: relative;
+    background: radial-gradient(circle, transparent 14%, #c1d7eb 15%, #c1d7eb 25%, transparent 26%);
+    background-size: 3em 3em;
+    background-color: #dbe7f2;
+    opacity: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chat h2 {
+    color: white;
+    padding: 10px;
+    margin: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    flex-grow: 0; /* Evita que crezca automáticamente */
+    flex-shrink: 0; /* Evita que se encoja automáticamente */
+  }
+  
+  .chat ul {
+    list-style-type: none;
+    padding: 10px;
+    flex-grow: 1; /* Ocupa el espacio restante */
+  }
+  .message {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  
+  .message-left {
+    justify-content: flex-start;
+  }
+  
+  .message-right {
+    justify-content: flex-end;
+  }
+  
+  .message-bubble {
+    padding: 10px;
+    border-radius: 10px;
+    position: relative;
+    max-width: 60%;
+  }
+  
+  .message-left .message-bubble {
+    background-color: #ffffff;
+    margin-left: 10px;
+  }
+  
+  .message-left .message-bubble::before {
+    content: "";
+    position: absolute;
+    top: 10px; /* Ajusta la posición vertical del piquito */
+    left: -10px; /* Ajusta la posición horizontal del piquito */
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid #ffffff;
+  }
+  
+  .message-right .message-bubble {
+    background-color: #ebffda;
+    margin-right: 10px;
+  }
+  
+  .message-right .message-bubble::before {
+    content: "";
+    position: absolute;
+    top: 10px; /* Ajusta la posición vertical del piquito */
+    right: -10px; /* Ajusta la posición horizontal del piquito */
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 10px solid #ebffda;
+  }
+  
+  
+  
+  #Mensaje {
+    font-size: 15px;
+    margin-top: 6px;
+  }
+  
+  #NombreRemitente {
+    font-size: 14px;
+    margin: 0;
+    color: rgb(11, 82, 116);
+  }
+  
+  
+  
+  .message-time {
+    font-size: 12px;
+    color: #999;
+    display: block;
+    text-align: right;
+    margin-top: 5px;
+  }
+  
+  .HeaderChat {
+    display: flex;
+    align-items: center;
+    background-color: #073560;
+    padding: 10px;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    flex-grow: 0; /* Evita que crezca automáticamente */
+    flex-shrink: 0; /* Evita que se encoja automáticamente */
+  }
+  
+  .titleChat {
+    font-size: 17px;
+  }
+  
+  .message-input-container {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    position: sticky;
+    bottom: 0;
+    background-color: #f1f1f1;
+  }
+  
+  .message-input-container input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+  }
+  
+  .message-input-container button {
+    background-color: #3f3f3f;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  .message-input-container button i {
+    font-size: 16px;
+  }
+  
+  .context-menu {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.37); /* Fondo semi-transparente */
+    backdrop-filter: blur(10px); /* Efecto de desenfoque */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Borde semi-transparente */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    min-width: 150px;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .context-menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .context-menu li {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  .context-menu li:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .context-menu li:active {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .context-menu li:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .context-menu li i {
+    margin-right: 10px;
+    font-size: 16px; /* Tamaño del icono */
+  }
+   
+  /*audio*/
+  .audio-container {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+  }
+  
+  .audio-container audio {
+    flex: 1;
+  }
+  
+  .audio-container .audio-description {
+    margin-left: 10px;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  
+  .media-container {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+  }
+  
+  
+  .media-container img {
+    flex: 1;
+    max-width: 100%;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    outline: none;
+  }
+  
+  .media-description {
+    margin-left: 10px;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  .media-container img {
+    max-height: 400px; /* Ajusta la altura máxima de la imagen */
+  }
+  
+  .containerDate {
+   width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    
+  }
+  
+  .date-label{
+    font-weight:400;
+    margin: 10px 0;
+    text-align: center;
+    color: #333;
+    margin: 0;
+    padding: 7px;
+    background-color: #f5f5f5;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+  }
+  
+  #toastContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.toast {
+    background-color: #333;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-top: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    animation: slideIn 0.5s ease-out;
+}
+
+.toast-success {
+    background-color: #28a745;
+}
+
+.toast-error {
+    background-color: #dc3545;
+}
+
+.toast-info {
+    background-color: #007bff;
+}
+
+.toast-warning {
+    background-color: #ffc107;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+  
+</style>
+<body>
+    <div class="App">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Mis grupos</h2>
+            </div>
+            <ul id="groupList"></ul>
+        </div>
+
+        <div class="chat">
+            <div id="HeaderChat" class="HeaderChat" style="display: none;">
+                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Group Icon" class="group-icon" />
+                <h2 id="titleChat" class="titleChat"></h2>
+            </div>
+            <ul id="chatContainer" ref="chatContainerRef"></ul>
+            <div class="message-input-container">
+                <input type="text" id="messageInput" placeholder="Escribe un mensaje..."  />
+                <button id="sendMessageButton"><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.153 19 21 12l-4.847-7H3l4.848 7L3 19h13.153Z"/>
+                  </svg></button>
+                <button id="uploadImageButton"><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M16 18H8l2.5-6 2 4 1.5-2 2 4Zm-1-8.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m14-4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 18h8l-2-4-1.5 2-2-4L8 18Zm7-8.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                  </svg></button>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" />
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <div id="contextMenu" class="context-menu" style="display: none;">
+        <ul>
+            <li id="copyMessage">Copiar</li>
+            <li id="deleteMessage">Eliminar</li>
+        </ul>
+    </div>
+
+    <script>
+        const backend = 'http://192.168.1.90:3001';
+        const socket = io(backend, {
+            transports: ['websocket'],
+            autoConnect: false,
+        });
+
+        const elemento = 80000;
+        let selectedGroup = null;
+        let emisor = null;
+
+        document.getElementById('messageInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleSendMessage();
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            axios.get(`${backend}/segucomunication/api/messagesGroupWEB/${elemento}`)
+                .then(response => {
+                    const data = response.data;
+                    emisor = data[0].NOMBRE_COMPLETO;
+                    populateGroupList(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+            if (!socket.connected) {
+                socket.connect();
+                socket.on('receiveMessage', handleReceiveMessage);
+            }
+
+            document.addEventListener('click', handleClickOutside);
+            document.getElementById('sendMessageButton').addEventListener('click', handleSendMessage);
+            document.getElementById('uploadImageButton').addEventListener('click', handleImageUpload);
+            document.getElementById('fileInput').addEventListener('change', handleFileInputChange);
+        });
+
+        function populateGroupList(groups) {
+            const groupList = document.getElementById('groupList');
+            groups.forEach(group => {
+                const li = document.createElement('li');
+                li.textContent = group.GRUPO_DESCRIP;
+                li.addEventListener('click', () => selectGroup(group));
+                groupList.appendChild(li);
+            });
+        }
+
+        function selectGroup(group) {
+            selectedGroup = group;
+            document.getElementById('HeaderChat').style.display = 'flex';
+            document.getElementById('titleChat').textContent = group.GRUPO_DESCRIP;
+            renderMessages(group);
+        }
+
+        function renderMessages(group) {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = '';
+            const messagesByDate = groupMessagesByDate(group.MENSAJES);
+            for (const [date, messages] of Object.entries(messagesByDate)) {
+                const dateContainer = document.createElement('div');
+                dateContainer.className = 'containerDate';
+                dateContainer.innerHTML = `<p class="date-label">${date}</p>`;
+                chatContainer.appendChild(dateContainer);
+
+                messages.forEach(message => {
+                    const li = document.createElement('li');
+                    li.className = `message ${message.ELEMENTO_NUMERO.toString() === elemento.toString() ? 'message-right' : 'message-left'}`;
+                    li.innerHTML = `
+                        <div class="message-bubble">
+                            <p id="NombreRemitente"><strong>${message.NOMBRE_REMITENTE} (${message.ELEMENTO_NUMERO})</strong></p>
+                            ${renderMessageContent(message)}
+                            <span class="message-time">${formatTime(message.FECHA)}</span>
+                        </div>
+                    `;
+                    li.addEventListener('contextmenu', (e) => handleRightClick(e, message));
+                    chatContainer.appendChild(li);
+                });
+            }
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function renderMessageContent(message) {
+            if (message.MEDIA === 'TXT') {
+                return `<p id="Mensaje">${message.MENSAJE}</p>`;
+            } else if (message.MEDIA === 'AUDIO') {
+                return `
+                    <div class="media-container">
+                        <audio controls>
+                            <source src="${backend}${message.UBICACION}" type="audio/aac" />
+                            Tu navegador no soporta el elemento de audio.
+                        </audio>
+                    </div>
+                `;
+            } else if (message.MEDIA === 'IMAGE') {
+                return `
+                    <div class="media-container">
+                        <img src="${backend}${message.UBICACION}" alt="Imagen enviada" class="media-image" />
+                    </div>
+                `;
+            } else {
+                return `<p>Tipo de media no soportado</p>`;
+            }
+        }
+
+        function handleReceiveMessage(data) {
+            showToast('Nuevo mensaje recibido');
+            if (selectedGroup) {
+                selectedGroup.MENSAJES = [...selectedGroup.MENSAJES, data];
+                renderMessages(selectedGroup);
+            }
+        }
+
+        function handleSendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            if (message === '') {
+                showToast('No se puede enviar un mensaje vacío', 'error');
+                return;
+            }
+
+            socket.connect();
+
+            const formattedDate = getFormattedDate();
+            const currentDate = new Date();
+            const millisecondsSinceEpoch = currentDate.getTime();
+
+            const requestBody = {
+                MENSAJE_ID: millisecondsSinceEpoch,
+                FECHA: formattedDate,
+                RECEPTOR: selectedGroup.GRUPO_ID,
+                MENSAJE: message,
+                MEDIA: 'TXT',
+                UBICACION: 'NA',
+                GRUPO_ID: selectedGroup.GRUPO_ID,
+                ELEMENTO_NUMERO: elemento,
+                NOMBRE_REMITENTE: emisor
+            };
+
+            const url = `${backend}/segucomunication/api/messages/group/${elemento}`;
+
+            axios.post(url, requestBody)
+                .then(response => {
+                    if (response.status === 200) {
+                        sendMessageSOCKETREALTIME(requestBody);
+                        messageInput.value = '';
+                        document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+                    } else {
+                        throw new Error('Failed to send message');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                    showToast('Error al enviar el mensaje', 'error');
+                });
+        }
+
+        function sendMessageSOCKETREALTIME(message) {
+            socket.emit('sendMessage', message);
+            showToast('Mensaje enviado correctamente');
+        }
+
+        function getFormattedDate() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function groupMessagesByDate(messages) {
+            return messages.reduce((acc, message) => {
+                const date = formatDate(message.FECHA);
+                if (!acc[date]) {
+                    acc[date] = [];
+                }
+                acc[date].push(message);
+                return acc;
+            }, {});
+        }
+
+        function handleRightClick(e, message) {
+            e.preventDefault();
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.top = `${e.pageY}px`;
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.message = message;
+        }
+
+        function handleClickOutside(e) {
+            const contextMenu = document.getElementById('contextMenu');
+            if (contextMenu.style.display === 'block' && !contextMenu.contains(e.target)) {
+                contextMenu.style.display = 'none';
+            }
+        }
+
+        function handleImageUpload() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileInputChange() {
+            const file = document.getElementById('fileInput').files[0];
+            if (file) {
+                uploadImage(file);
+            }
+        }
+
+        async function uploadImage(file) {
+         
+          
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+      const formattedDate = new Date().toISOString();
+      const currentDate = new Date();
+      const millisecondsSinceEpoch = currentDate.getTime();
+
+      const requestBody = {
+        MENSAJE_ID: millisecondsSinceEpoch,
+          FECHA: formattedDate,
+          REMITENTE: elemento,
+          MENSAJE: '', // Asegúrate de convertir imageUrl a String si es necesario
+          MEDIA: 'IMAGE',
+          NOMBRE: 'XSX',
+         // Ajusta según la URL completa del backend
+          ELEMENTO_NUMERO: elemento,
+          NOMBRE_REMITENTE: emisor,
+          GRUPO_ID: selectedGroup.GRUPO_ID
+      };
+
+      formData.append('data', JSON.stringify(requestBody));
+
+      const url = `${backend}/segucomunication/api/messages/image/group/image/80000/1`;
+
+      try {
+        const response = await axios.post(url, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (response.status === 200) {
+          const imageUrl = response.data.imageUrl; // Ajusta según la estructura de tu respuesta
+        const newMessage = {
+          MENSAJE_ID: millisecondsSinceEpoch,
+          FECHA: formattedDate,
+          REMITENTE: elemento,
+          MENSAJE: '', // Asegúrate de convertir imageUrl a String si es necesario
+          MEDIA: 'IMAGE',
+          NOMBRE: 'XSX',
+          UBICACION: imageUrl.toString(), // Ajusta según la URL completa del backend
+          ELEMENTO_NUMERO: elemento,
+          NOMBRE_REMITENTE: emisor
+          };
+
+          sendMessageSOCKETREALTIME(newMessage); // Función para enviar mensaje a través de Socket.IO
+          setMessage(''); // Limpiar el campo de mensaje (si aplica)
+
+          // Ajusta esto según cómo manejas el scroll en tu aplicación HTML
+          // Por ejemplo:
+          // document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+
+        } else {
+          throw new Error('Failed to send image');
+        }
+      } catch (error) {
+        console.error('Error sending image:', error);
+        alert('Error al enviar la imagen');
+      }
+    }
+    
+
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+            }, 3000);
+        }
+
+        document.getElementById('copyMessage').addEventListener('click', () => {
+            const contextMenu = document.getElementById('contextMenu');
+            const message = contextMenu.message;
+            navigator.clipboard.writeText(message.MENSAJE).then(() => {
+                showToast('Mensaje copiado al portapapeles');
+                contextMenu.style.display = 'none';
+            });
+        });
+
+        document.getElementById('deleteMessage').addEventListener('click', () => {
+            const contextMenu = document.getElementById('contextMenu');
+            const message = contextMenu.message;
+            // Implementar lógica de eliminación de mensaje
+            contextMenu.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
