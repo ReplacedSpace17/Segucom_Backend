@@ -552,15 +552,21 @@
                     </div>
                 `;
       } else if (message.MEDIA === 'IMAGE') {
-        return `
-                    <div class="media-container">
-                        <img src="${backend}${message.UBICACION}" alt="Imagen enviada" class="media-image" />
-                    </div>
-                `;
-      } else {
+  return `
+    <div class="media-container">
+      <img src="${backend}${message.UBICACION}" alt="Imagen enviada" class="media-image" onclick="openImageInNewTab('${backend}${message.UBICACION}')" />
+    </div>
+  `;
+}
+ else {
         return `<p>Tipo de media no soportado</p>`;
       }
     }
+
+    // Función para abrir la imagen en una nueva pestaña
+function openImageInNewTab(url) {
+  window.open(url, '_blank');
+}
 
     function handleReceiveMessage(data) {
       showToast('Nuevo mensaje recibido');
