@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 function UID() {
     return uuidv4();
 }
-
 // Obtener geocercas getGeocercasID
 function getGeocercas(req, res) {
     const query = `
@@ -34,18 +33,24 @@ function getGeocercas(req, res) {
                                 .split(',')
                                 .map(coord => coord.split(':').map(s => s.trim()));
 
-                            return {
-                                lat: parseFloat(coords[0][1]),
-                                lng: parseFloat(coords[1][1])
-                            };
-                        });
+                            if (coords.length >= 2 && coords[0].length >= 2 && coords[1].length >= 2) {
+                                return {
+                                    lat: parseFloat(coords[0][1]),
+                                    lng: parseFloat(coords[1][1])
+                                };
+                            } else {
+                                console.warn('Formato inesperado en GEOCERCA_LOCALIZA:', locationString);
+                                return null;
+                            }
+                        })
+                        .filter(location => location !== null);
 
                     return {
                         Nombre: row.GEOCERCA_DESCRIP,
                         GeocercaID: row.GEOCERCA_ID,
                         Clave: row.GEOCERCA_CLAVE,
                         RegionID: row.REGION_ID,
-                        RegionDescripcion: row.REGION_DESCRIP, // Añadido
+                        RegionDescripcion: row.REGION_DESCRIP,
                         Fecha: row.GEOCERCA_FEC,
                         Perimetro: perimetro
                     };
@@ -58,6 +63,7 @@ function getGeocercas(req, res) {
         });
     });
 }
+
 
 function getGeocercasID(req, res, ID) {
     const query = `

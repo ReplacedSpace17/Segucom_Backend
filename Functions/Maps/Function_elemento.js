@@ -112,7 +112,7 @@ function VerifyMonitoreoZona(Num_tel) {
                 console.error('Error al verificar monitoreo de rondín:', error);
                 reject(error);
             } else {
-                console.log(results);
+                //console.log(results);
                 if (results.length > 0 && results[0].ELEMENTO_FUERA === 1) {
                     console.log('Elemento ' + Num_tel + ' tiene monitoreo de zona activado');
                     resolve(true);
@@ -127,7 +127,7 @@ function VerifyMonitoreoZona(Num_tel) {
 
 function AddUbicacionHistorial(req, res, numeroElemento, lat, long, time) {
     // Obtener la fecha y hora actual
-    const fechaHora = new Date().toISOString().slice(0, 19).replace('T', ' '); // Formato YYYY-MM-DD HH:MM:SS
+    
 
     // Construir el objeto de ubicación en formato {lat: VALUE, lon: VALUE}
     const ubicacion = { lat: lat, lon: long };
@@ -160,71 +160,99 @@ function isPointInPolygon(point, polygon) {
     return inside;
   }
   
-  // Función para verificar si el elemento está dentro de una geocerca
-  function verifyElementoDentroGeocerca(req, res, numeroElemento, lat, long, time) {
-    const query = 'SELECT G.GEOCERCA_LOCALIZA FROM GEOCERCAS G JOIN ELEMENTO E ON G.REGION_ID = E.REGION_ID WHERE E.ELEMENTO_NUMERO = ?';
-  
-    connection.query(query, [numeroElemento], (error, results) => {
-      if (error) {
-        console.error('Error en la consulta:', error);
-        //res.status(500).send(error);
-        return;
-      }
-  
-      if (results.length === 0) {
-        console.log(`No se encontraron geocercas para el elemento número ${numeroElemento}`);
-        //res.status(200).send(`No se encontraron geocercas para el elemento número ${numeroElemento}`);
-        return;
-      }
-  
-      const point = { lat, lng: long }; // Cambiado lon por lng
-      let dentroDeGeocerca = false;
-  
-      try {
-        for (let i = 0; i < results.length; i++) {
-          const geocercaLocaliza = results[i].GEOCERCA_LOCALIZA
-            .split('\n')
-            .map(locationString => {
-              const coords = locationString
-                .replace(/[{}]/g, '')
-                .split(',')
-                .map(coord => coord.split(':').map(s => s.trim()));
-  
-              return {
-                lat: parseFloat(coords[0][1]),
-                lng: parseFloat(coords[1][1]) // Cambiado lon por lng
-              };
+  function verifyElementoDentroGeocerca(numeroElemento, lat, long) {
+    return new Promise((resolve, reject) => {
+        const query1 = 'SELECT GEOCERCA_ID FROM ELEMENTO WHERE ELEMENTO_NUMERO = ?';
+
+        connection.query(query1, [numeroElemento], (error1, results1) => {
+            if (error1) {
+                console.error('Error en la consulta:', error1);
+                return reject(error1);
+            }
+
+            if (results1.length === 0) {
+                console.log(`No se encontró GEOCERCA_ID para el elemento número ${numeroElemento}`);
+                return resolve(false);
+            }
+
+            const geocercaId = results1[0].GEOCERCA_ID;
+            const query2 = 'SELECT GEOCERCA_LOCALIZA FROM GEOCERCAS WHERE GEOCERCA_ID = ?';
+
+            connection.query(query2, [geocercaId], (error2, results2) => {
+                if (error2) {
+                    console.error('Error en la consulta:', error2);
+                    return reject(error2);
+                }
+
+                if (results2.length === 0) {
+                    console.log(`No se encontró GEOCERCA_LOCALIZA para GEOCERCA_ID ${geocercaId}`);
+                    return resolve(false);
+                }
+
+                const geocercaLocaliza = results2[0].GEOCERCA_LOCALIZA;
+                const point = { lat, lng: long };
+                let dentroDeGeocerca = false;
+
+                try {
+                    const polygon = geocercaLocaliza.split('\n').map(locationString => {
+                        const coords = locationString
+                            .replace(/[{}]/g, '')
+                            .split(',')
+                            .map(coord => coord.split(':').map(s => s.trim()));
+
+                        return {
+                            lat: parseFloat(coords[0][1]),
+                            lng: parseFloat(coords[1][1])
+                        };
+                    });
+
+                    if (isPointInPolygon(point, polygon)) {
+                        dentroDeGeocerca = true;
+                    }
+                } catch (parseError) {
+                    console.error('Error al analizar la geocerca:', parseError);
+                    return reject(parseError);
+                }
+
+                if (dentroDeGeocerca) {
+                    console.log(`El elemento número ${numeroElemento} está dentro de una geocerca`);
+                    return resolve(true);
+                } else {
+                    console.log(`El elemento número ${numeroElemento} NO está dentro de una geocerca`);
+                    return resolve(false);
+                }
             });
-  
-          if (isPointInPolygon(point, geocercaLocaliza)) {
-            dentroDeGeocerca = true;
-            break;
-          }
-        }
-      } catch (parseError) {
-        console.error('Error al analizar la geocerca:', parseError);
-        //res.status(500).send(parseError);
-        return;
-      }
-  
-      if (dentroDeGeocerca) {
-        console.log(`El elemento número ${numeroElemento} está dentro de una geocerca`);
-        return true;
-        //res.status(200).send(`El elemento número ${numeroElemento} está dentro de una geocerca`);
-      } else {
-        console.log(`El elemento número ${numeroElemento} NO está dentro de una geocerca`);
-        return false;
-        //res.status(200).send(`El elemento número ${numeroElemento} NO está dentro de una geocerca`);
-      }
+        });
     });
-  }
+}
+
   
+
+  //
+  function AddElementoFueraZona(req, res, numeroElemento, lat, long, tipo, time) {
+    // Construir el objeto de localización en formato {lat: VALUE, lon: VALUE}
+    const localizacion = { lat: lat, lon: long };
+
+    // Construir la consulta SQL para insertar en ELEMENTO_FUERA
+    const query = 'INSERT INTO ELEMENTO_FUERA (FUERA_FECHA, FUERA_TIPO, FUERA_LOCALIZACION, ELEMENTO_NUMERO) VALUES (?, ?, ?, ?)';
+
+    connection.query(query, [time, tipo, JSON.stringify(localizacion), numeroElemento], (error, results) => {
+        if (error) {
+            console.error('Error al insertar en ELEMENTO_FUERA:', error);
+            res.status(500).send(error);
+        } else {
+            console.log('Registro de elemento fuera de zona agregado para elemento número: ' + numeroElemento);
+            //res.status(200).send('Registro de elemento fuera de zona agregado con éxito');
+        }
+    });
+}
+
 
 //modificar ubicacion
 async function UpdateUbicacion(req, res, data, Num_tel) {
     try {
-        const rondin = await VerifyMonitoreoRondin(Num_tel);
-        const zona = await VerifyMonitoreoZona(Num_tel);
+        const rondin = await VerifyMonitoreoRondin(Num_tel); // Verificar si el elemento tiene monitoreo de rondín
+        const zona = await VerifyMonitoreoZona(Num_tel); // Verificar si el elemento tiene monitoreo de zona
         //console.log('Desea rondin?: ' + rondin);
 
         const query = 'UPDATE ELEMENTO SET ELEMENTO_LATITUD = ?, ELEMENTO_LONGITUD = ?, ELEMENTO_ULTIMALOCAL = ? WHERE ELEMENTO_TELNUMERO = ?';
@@ -234,18 +262,23 @@ async function UpdateUbicacion(req, res, data, Num_tel) {
                 res.status(500).send(error);
             } else {
                 console.log('Ubicación actualizada de elemento: ' + Num_tel + ' a latitud: ' + data.ELEMENTO_LATITUD + ' y longitud: ' + data.ELEMENTO_LONGITUD + ' HORA: ' + data.Hora);
+                // Agregar la ubicación al historial de ubicaciones
                 if (rondin === true) {
                     AddUbicacionHistorial(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL);
                 }
+                // Verificar si el elemento tiene monitoreo de zona
                 if (zona === true) {
                     // Verificar si el elemento está dentro de una geocerca
-                  const esta = await verifyElementoDentroGeocerca(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL);
-                    if (esta===false) {
-                        //cambiar tabla ppor 
-                        AddUbicacionHistorial(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, data.ELEMENTO_ULTIMALOCAL);
-                    }
+                  const esta = await verifyElementoDentroGeocerca(data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD);
+                   console.log('Dentro de geocerca?: ' + esta);
+
+                   if (esta==false) {
+                        console.log('Elemento dentro de zona');
+                        //cambiar tabla ppor 1 por tratarse de zona y no punto de vigilancia
+                        AddElementoFueraZona(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, 1, data.ELEMENTO_ULTIMALOCAL);
+                    } 
                 }
-                res.json(results);
+                
             }
         });
     } catch (error) {
