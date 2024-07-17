@@ -416,17 +416,18 @@ const httpsOptions = {
 };
 
 // Crear servidor HTTPS
-/*
+
 https.createServer(httpsOptions, app).listen(port, () => {
   console.log(`Servidor HTTPS corriendo en https://0.0.0.0:${port}`);
 });
-*/
 
 
+
+/*
 http.createServer(app).listen(port, () => {
   console.log(`Servidor HTTP corriendo en http://0.0.0.0:${port}`);
 });
-
+*/
 
 
 //https://segubackend.com:3000/fotos/upload?endpoint=boletines&id_data=1
