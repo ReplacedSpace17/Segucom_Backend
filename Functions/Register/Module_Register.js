@@ -194,7 +194,7 @@ async function loginUser(req, res, telefono, clave) {
         WHERE PERFIL_ELEMENTO.ELEMENTO_TELNUMERO = ? 
         AND ELEMENTO.ELEMENTO_ACTIVO = 1
     `;
-
+    console.log('Recibiendo el telefono y clave:', telefono + ' ' + clave);
     connection.query(loginScript, [telefono], async (error, results) => {
         if (error) {
             console.error('Error al realizar el inicio de sesión', error);
@@ -202,16 +202,23 @@ async function loginUser(req, res, telefono, clave) {
         }
 
         if (results.length === 1) {
-            const isPasswordMatch = await comparePasswords(clave, results[0].PERFIL_CLAVE);
-            if (isPasswordMatch) {
-                // Generar un token de autenticación
-                const token = jwt.sign({ telefono: results[0].ELEMENTO_TELNUMERO }, 'secretKey');
 
-
-
-                //mostrar token
-                console.log(token);
-                res.status(200).json({ ...results[0], token });
+            //verificar si perfilclave es diferente a null o vacia
+            if (results[0].PERFIL_CLAVE === null || results[0].PERFIL_CLAVE === '') {
+                const isPasswordMatch = await comparePasswords(clave, results[0].PERFIL_CLAVE);
+                if (isPasswordMatch) {
+                    // Generar un token de autenticación
+                    const token = jwt.sign({ telefono: results[0].ELEMENTO_TELNUMERO }, 'secretKey');
+    
+    
+    
+                    //mostrar token
+                    console.log(token);
+                    res.status(200).json({ ...results[0], token });
+            }else{
+                res.status(401).json({ error: 'Este usuario no está registrado' });
+            }
+           
             } else {
                 res.status(401).json({ error: 'Credenciales inválidas' });
             }
