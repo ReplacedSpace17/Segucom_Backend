@@ -205,6 +205,8 @@ async function loginUser(req, res, telefono, clave) {
 
             //verificar si perfilclave es diferente a null o vacia
             if (results[0].PERFIL_CLAVE === null || results[0].PERFIL_CLAVE === '') {
+               res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
+            }else{
                 const isPasswordMatch = await comparePasswords(clave, results[0].PERFIL_CLAVE);
                 if (isPasswordMatch) {
                     // Generar un token de autenticación
@@ -215,8 +217,6 @@ async function loginUser(req, res, telefono, clave) {
                     //mostrar token
                     console.log(token);
                     res.status(200).json({ ...results[0], token });
-            }else{
-                res.status(401).json({ error: 'Este usuario no está registrado' });
             }
            
             } else {
