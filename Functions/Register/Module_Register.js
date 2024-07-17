@@ -34,7 +34,7 @@ function hash(password, saltRounds) {
 }
 
 //funcion para obtener la informacion personal
-async function getInformationPerfil(req, res, TelNum){
+async function getInformationPerfil(req, res, TelNum) {
     const checkPhoneQuery = 'SELECT * FROM PERFIL_ELEMENTO WHERE ELEMENTO_TELNUMERO = ?';
     connection.query(checkPhoneQuery, [TelNum], (checkError, results) => {
         if (checkError) {
@@ -109,7 +109,8 @@ async function ValidarRegistro(req, res, numeroTelefono, numeroElemento) {
 
                 if (results.length > 0) {
                     console.log('Validación exitosa para el número de teléfono:', numeroTelefono);
-                    return res.status(200).json({ message: 'Validación exitosa', numeroTelefono: numeroTelefono, numeroElemento: numeroElemento, 
+                    return res.status(200).json({
+                        message: 'Validación exitosa', numeroTelefono: numeroTelefono, numeroElemento: numeroElemento,
                         Nombre: results[0].PERFIL_NOMBRE
                     });
                 } else {
@@ -205,8 +206,9 @@ async function loginUser(req, res, telefono, clave) {
 
             //verificar si perfilclave es diferente a null o vacia
             if (results[0].PERFIL_CLAVE === null || results[0].PERFIL_CLAVE === '') {
-               res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
-            }else{
+                console.log('El perfil no tiene una contraseña establecida');
+                res.status(401).json({ error: 'El perfil no tiene una contraseña establecida' });
+            } else {
                 const isPasswordMatch = await comparePasswords(clave, results[0].PERFIL_CLAVE);
                 if (isPasswordMatch) {
                     // Generar un token de autenticación
@@ -217,11 +219,13 @@ async function loginUser(req, res, telefono, clave) {
                     //mostrar token
                     console.log(token);
                     res.status(200).json({ ...results[0], token });
+                } else {
+                    res.status(401).json({ error: 'Credenciales inválidas' });
+                }
             }
-           
-            } else {
-                res.status(401).json({ error: 'Credenciales inválidas' });
-            }
+
+
+       
         } else {
             res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
         }
@@ -303,7 +307,7 @@ function updatePerfilElemento(req, res, password, elemento_Numero) {
 
     const hashedPassword = hashFunction(password);
     console.log('Clave hasheada:', hashedPassword);
-    
+
     const query = `
         UPDATE PERFIL_ELEMENTO 
         SET 
