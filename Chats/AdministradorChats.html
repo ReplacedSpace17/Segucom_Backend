@@ -597,53 +597,55 @@ function openImageInNewTab(url) {
     }
 
     function handleSendMessage() {
-      const messageInput = document.getElementById('messageInput');
-      const message = messageInput.value.trim();
-      if (message === '') {
-        showToast('No se puede enviar un mensaje vacío', 'error');
-        return;
+  const messageInput = document.getElementById('messageInput');
+  const message = messageInput.value.trim();
+  if (message === '') {
+    showToast('No se puede enviar un mensaje vacío', 'error');
+    return;
+  }
+
+  socket.connect();
+
+  const formattedDate = getFormattedDate();
+  const currentDate = new Date();
+  const millisecondsSinceEpoch = currentDate.getTime();
+
+  const requestBody = {
+    MENSAJE_ID: millisecondsSinceEpoch,
+    FECHA: formattedDate,
+    RECEPTOR: selectedGroup.GRUPO_ID,
+    MENSAJE: message,
+    MEDIA: 'TXT',
+    UBICACION: 'NA',
+    GRUPO_ID: selectedGroup.GRUPO_ID,
+    ELEMENTO_NUMERO: elemento,
+    NOMBRE_REMITENTE: emisor,
+    GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
+    groupId: selectedGroup.GRUPO_ID,
+    NOMBRE: selectGroup.NOMBRE_COMPLETO,
+  };
+  console.log(requestBody);
+
+  const url = `${backend}/segucomunication/api/messages/group/${elemento}`;
+
+  axios.post(url, requestBody)
+    .then(response => {
+      if (response.status === 200) {
+        sendMessageSOCKETREALTIME(requestBody);
+        // Añadir el mensaje enviado a la lista de mensajes y renderizarlo
+        selectedGroup.MENSAJES.push(requestBody);
+        renderMessages(selectedGroup);
+        messageInput.value = '';
+        document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+      } else {
+        throw new Error('Failed to send message');
       }
-
-      socket.connect();
-
-      const formattedDate = getFormattedDate();
-      const currentDate = new Date();
-      const millisecondsSinceEpoch = currentDate.getTime();
-
-      const requestBody = {
-        MENSAJE_ID: millisecondsSinceEpoch,
-        FECHA: formattedDate,
-        RECEPTOR: selectedGroup.GRUPO_ID,
-        MENSAJE: message,
-        MEDIA: 'TXT',
-        UBICACION: 'NA',
-        GRUPO_ID: selectedGroup.GRUPO_ID,
-        ELEMENTO_NUMERO: elemento,
-        NOMBRE_REMITENTE: emisor,
-        GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
-        groupId: selectedGroup.GRUPO_ID,
-          NOMBRE: selectGroup.NOMBRE_COMPLETO,
-
-      };
-      console.log(requestBody);
-
-      const url = `${backend}/segucomunication/api/messages/group/${elemento}`;
-
-      axios.post(url, requestBody)
-        .then(response => {
-          if (response.status === 200) {
-            sendMessageSOCKETREALTIME(requestBody);
-            messageInput.value = '';
-            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
-          } else {
-            throw new Error('Failed to send message');
-          }
-        })
-        .catch(error => {
-          console.error('Error sending message:', error);
-          showToast('Error al enviar el mensaje', 'error');
-        });
-    }
+    })
+    .catch(error => {
+      console.error('Error sending message:', error);
+      showToast('Error al enviar el mensaje', 'error');
+    });
+}
 
     function sendMessageSOCKETREALTIME(message) {
       socket.emit('sendMessage', message);
@@ -770,7 +772,10 @@ const formattedDate = getFormattedDate();
           NOMBRE: 'XSX',
           UBICACION: imageUrl.toString(), // Ajusta según la URL completa del backend
           ELEMENTO_NUMERO: elemento,
-          NOMBRE_REMITENTE: emisor
+          NOMBRE_REMITENTE: emisor,
+          GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
+        groupId: selectedGroup.GRUPO_ID,
+          NOMBRE: selectGroup.NOMBRE_COMPLETO,
       };
 
       sendMessageSOCKETREALTIME(newMessage); // Enviar mensaje a través de Socket.IO
