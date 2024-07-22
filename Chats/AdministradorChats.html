@@ -455,13 +455,19 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const elemento = parseInt(urlParams.get('elementoId'));
-    //const backend = 'https://segubackend.com:3001';
-    const backend = 'https://192.168.1.90:3001';
+   let NombreGrupo='';
+   let NombreRemitente='';
+   let ID_Grupo ='';
+
+    const backend = 'https://segubackend.com:3001';
+   // const backend = 'https://192.168.1.90:3001';
     
     const socket = io(backend, {
       transports: ['websocket'],
       autoConnect: false,
     });
+
+    //
 
     //const elemento = 80000;
     let selectedGroup = null;
@@ -477,7 +483,12 @@
       axios.get(`${backend}/segucomunication/api/messagesGroupWEB/${elemento}`)
         .then(response => {
           const data = response.data;
+          console.log(data);
           emisor = data[0].NOMBRE_COMPLETO;
+          //
+          NombreGrupo = data[0].GRUPO_DESCRIP;
+          NombreRemitente = data[0].NOMBRE_COMPLETO;
+          ID_Grupo = data[0].GRUPO_ID;
           populateGroupList(data);
         })
         .catch(error => {
@@ -485,6 +496,8 @@
         });
 
       if (!socket.connected) {
+        socket?.emit('setId', data[0].ELEMENTO_NUM);
+        socket.emit('joinGroup', [data[0].GRUPO_ID, data[0].ELEMENTO_NUM]);
         socket.connect();
         socket.on('receiveMessage', handleReceiveMessage);
       }
@@ -599,8 +612,13 @@ function openImageInNewTab(url) {
         UBICACION: 'NA',
         GRUPO_ID: selectedGroup.GRUPO_ID,
         ELEMENTO_NUMERO: elemento,
-        NOMBRE_REMITENTE: emisor
+        NOMBRE_REMITENTE: emisor,
+        GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
+        groupId: selectedGroup.GRUPO_ID,
+          NOMBRE: selectGroup.NOMBRE_COMPLETO,
+
       };
+      console.log(requestBody);
 
       const url = `${backend}/segucomunication/api/messages/group/${elemento}`;
 

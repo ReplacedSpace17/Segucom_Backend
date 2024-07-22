@@ -201,7 +201,9 @@ async function loginUser(req, res, telefono, clave) {
             console.error('Error al realizar el inicio de sesión', error);
             return res.status(500).json({ error: 'Error de servidor al realizar el inicio de sesión' });
         }
-
+ 
+        console.log('Resultados:', results);
+        //
         if (results.length === 1) {
 
             //verificar si perfilclave es diferente a null o vacia
