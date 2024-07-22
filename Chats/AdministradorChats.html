@@ -489,7 +489,10 @@
           NombreRemitente = data[0].NOMBRE_COMPLETO;
           ID_Grupo = data[0].GRUPO_ID;
           populateGroupList(data);
-
+          console.log("ID GRUPO: "+ID_Grupo);
+          console.log("Nombre Grupo: "+NombreGrupo);
+          console.log("Nombre Remitente: "+NombreRemitente);
+          console.log("Elemento: "+data[0].ELEMENTO_NUM);
           // Unir al usuario al grupo
           if (!socket.connected) {
             socket.emit('setId', data[0].ELEMENTO_NUM);
