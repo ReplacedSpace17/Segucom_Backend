@@ -489,16 +489,18 @@
           NombreRemitente = data[0].NOMBRE_COMPLETO;
           ID_Grupo = data[0].GRUPO_ID;
           populateGroupList(data);
-          console.log("ID GRUPO: "+ID_Grupo);
-          console.log("Nombre Grupo: "+NombreGrupo);
-          console.log("Nombre Remitente: "+NombreRemitente);
-          console.log("Elemento: "+data[0].ELEMENTO_NUM);
-          // Unir al usuario al grupo
-          if (!socket.connected) {
+          console.log("ID GRUPO: " + ID_Grupo);
+          console.log("Nombre Grupo: " + NombreGrupo);
+          console.log("Nombre Remitente: " + NombreRemitente);
+          console.log("Elemento: " + data[0].ELEMENTO_NUM);
+
+          // Conectar al socket y luego unir al grupo
+          socket.connect();
+
+          socket.on('connect', () => {
             socket.emit('setId', data[0].ELEMENTO_NUM);
-            socket.emit('joinGroup', [data[0].GRUPO_ID, data[0].ELEMENTO_NUM]);
-            socket.connect();
-          }
+            socket.emit('joinGroup', data[0].GRUPO_ID, data[0].ELEMENTO_NUM);
+          });
 
           // Configurar el manejo de mensajes recibidos
           socket.on('receiveMessage', handleReceiveMessage);
