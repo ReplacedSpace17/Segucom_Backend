@@ -485,22 +485,24 @@
           const data = response.data;
           console.log(data);
           emisor = data[0].NOMBRE_COMPLETO;
-          //
           NombreGrupo = data[0].GRUPO_DESCRIP;
           NombreRemitente = data[0].NOMBRE_COMPLETO;
           ID_Grupo = data[0].GRUPO_ID;
           populateGroupList(data);
+
+          // Unir al usuario al grupo
+          if (!socket.connected) {
+            socket.emit('setId', data[0].ELEMENTO_NUM);
+            socket.emit('joinGroup', [data[0].GRUPO_ID, data[0].ELEMENTO_NUM]);
+            socket.connect();
+          }
+
+          // Configurar el manejo de mensajes recibidos
+          socket.on('receiveMessage', handleReceiveMessage);
         })
         .catch(error => {
           console.error('Error:', error);
         });
-
-      if (!socket.connected) {
-        socket?.emit('setId', data[0].ELEMENTO_NUM);
-        socket.emit('joinGroup', [data[0].GRUPO_ID, data[0].ELEMENTO_NUM]);
-        socket.connect();
-        socket.on('receiveMessage', handleReceiveMessage);
-      }
 
       document.addEventListener('click', handleClickOutside);
       document.getElementById('sendMessageButton').addEventListener('click', handleSendMessage);
