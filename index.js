@@ -85,7 +85,7 @@ const uploadConsignas = multer({ storage: storage('consignas') });
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
 const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications,
-  ValidarRegistro
+  ValidarRegistro, updateNombrePerfilElemento
  } = require('./Functions/Register/Module_Register');
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION MAPS
@@ -121,6 +121,15 @@ app.post('/segucom/api/user', async (req, res) => {
 app.post('/segucom/api/login', async (req, res) => {
   const { telefono, clave } = req.body;
   await loginUser(req, res, telefono, clave);
+});
+
+//actualizar nombre updateNombrePerfilElemento
+app.put('/segucom/api/user/nombre/:numero_elemento', async (req, res) => {
+  const numero_elemento = req.params.numero_elemento;
+  //obteer el nombre del body
+  const nombre = req.body.nombre;
+  console.log('Actualizando nombre de elemento: ' + numero_elemento + ' con el nombre: ' + nombre);
+  await updateNombrePerfilElemento(req, res, nombre, numero_elemento);
 });
 
 

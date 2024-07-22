@@ -372,7 +372,33 @@ async function getNotifications(req, res, numero_Elemento) {
 }
 
 
+function updateNombrePerfilElemento(req, res, nombre, elemento_Numero) {
+    console.log('Actualizando nombre de perfil para el elemento:', elemento_Numero);
+    console.log('Nuevo nombre:', nombre);
+
+    const query = `
+        UPDATE PERFIL_ELEMENTO 
+        SET 
+            PERFIL_NOMBRE = ?  
+        WHERE 
+            ELEMENTO_NUMERO = ?
+    `;
+
+    connection.query(query, [
+        nombre,
+        elemento_Numero
+    ], (error, results) => {
+        if (error) {
+            res.status(500).send(error);
+        } else {
+            console.log(`Nombre de perfil actualizado: ${elemento_Numero} - ${nombre}`);
+            res.status(200).send('Nombre de perfil actualizado');
+        }
+    });
+}
+
 
 module.exports = {
-    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken, ValidarRegistro
+    addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken, ValidarRegistro,
+    updateNombrePerfilElemento
 };
