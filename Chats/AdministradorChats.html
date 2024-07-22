@@ -724,18 +724,16 @@ function openImageInNewTab(url) {
 
     const currentDate = new Date();
 
-// Obtener la diferencia en minutos entre la zona horaria local y UTC
-const offsetMinutes = currentDate.getTimezoneOffset();
+    // Obtener la diferencia en minutos entre la zona horaria local y UTC
+    const offsetMinutes = currentDate.getTimezoneOffset();
 
-// Calcular el tiempo en milisegundos para ajustar la fecha
-const adjustedTimeMilliseconds = currentDate.getTime() + (offsetMinutes * 60 * 1000);
+    // Calcular el tiempo en milisegundos para ajustar la fecha
+    const adjustedTimeMilliseconds = currentDate.getTime() + (offsetMinutes * 60 * 1000);
 
-// Crear una nueva fecha ajustada
-const adjustedDate = new Date(adjustedTimeMilliseconds);
+    // Crear una nueva fecha ajustada
+    const adjustedDate = new Date(adjustedTimeMilliseconds);
 
-const formattedDate = getFormattedDate();
-     
-
+    const formattedDate = getFormattedDate();
     const millisecondsSinceEpoch = new Date().getTime();
 
     const requestBody = {
@@ -765,21 +763,24 @@ const formattedDate = getFormattedDate();
 
       const newMessage = {
         MENSAJE_ID: millisecondsSinceEpoch,
-          FECHA: formattedDate,
-          REMITENTE: elemento,
-          MENSAJE: '', // Asegúrate de convertir imageUrl a String si es necesario
-          MEDIA: 'IMAGE',
-          NOMBRE: 'XSX',
-          UBICACION: imageUrl.toString(), // Ajusta según la URL completa del backend
-          ELEMENTO_NUMERO: elemento,
-          NOMBRE_REMITENTE: emisor,
-          GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
+        FECHA: formattedDate,
+        REMITENTE: elemento,
+        MENSAJE: '', // Asegúrate de convertir imageUrl a String si es necesario
+        MEDIA: 'IMAGE',
+        NOMBRE: 'XSX',
+        UBICACION: imageUrl.toString(), // Ajusta según la URL completa del backend
+        ELEMENTO_NUMERO: elemento,
+        NOMBRE_REMITENTE: emisor,
+        GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
         groupId: selectedGroup.GRUPO_ID,
-          NOMBRE: selectGroup.NOMBRE_COMPLETO,
+        NOMBRE: selectGroup.NOMBRE_COMPLETO,
       };
 
       sendMessageSOCKETREALTIME(newMessage); // Enviar mensaje a través de Socket.IO
-      setMessage(''); // Limpiar el campo de mensaje si es necesario
+      
+      // Añadir el mensaje enviado a la lista de mensajes y renderizarlo
+      selectedGroup.MENSAJES.push(newMessage);
+      renderMessages(selectedGroup);
 
       alert('¡Imagen enviada correctamente!');
     } else {
@@ -787,9 +788,10 @@ const formattedDate = getFormattedDate();
     }
   } catch (error) {
     console.error('Error sending image:', error);
-    
   }
 }
+//
+
 
 
 // Ejemplo de uso en un manejador de evento (por ejemplo, onChange de input type="file"):
