@@ -51,6 +51,9 @@ sudo systemctl status segucomunication
 sudo systemctl stop segucomunication
 sudo systemctl restart segucomunication
 
+sudo nano /etc/nginx/sites-available/
+sudo nginx -t
+sudo systemctl restart nginx
 
  #invitados c5
 9f@5i2H&7LQA
