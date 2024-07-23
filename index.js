@@ -410,6 +410,7 @@ app.get('/help', (req, res) => {
 
 // Ruta de ejemplo
 app.get('/test', (req, res) => {
+  console.log('¡Hola, mundo!');
   res.send('¡Hola, mundo!');
 });
 
