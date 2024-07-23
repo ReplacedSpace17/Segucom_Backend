@@ -434,13 +434,7 @@ https.createServer(httpsOptions, app).listen(port, () => {
 });
 */
 
-app.use('/communication', createProxyMiddleware({
-  target: 'http://localhost:3001',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/communication': '', // Elimina el prefijo /communication en la URL antes de enviarla al servidor de destino
-  },
-}));
+
 
 http.createServer(app).listen(port, () => {
   console.log(`Servidor HTTP corriendo en http://0.0.0.0:${port}`);
