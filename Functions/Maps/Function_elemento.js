@@ -69,6 +69,7 @@ function LocalizarTodosElemento(req, res) {
         CATALOGO_BASE b ON e.BASE_ID = b.BASE_ID
     LEFT JOIN 
         CATALOGO_TURNOS t ON e.TURNO_ID = t.TURNO_ID
+    WHERE e.ELEMENTO_ACTIVO = 1
 `;
     connection.query(query, [], (error, results) => {
         if (error) {
