@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerta Pánico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #alertaContainer {
+            margin-top: 20px;
+        }
+        .alerta {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #f00;
+            background-color: #fdd;
+            color: #f00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Alerta Pánico</h1>
+    <div id="alertaContainer"></div>
+
+    <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+    <script>
+        // Conectar al servidor de Socket.IO
+        const socket = io('https://segubackend.com'); // Reemplaza con tu URL y puerto
+
+        // Escuchar el evento 'alertaPanico'
+        socket.on('panicoAlerta', (data) => {
+            console.log('Alerta de pánico recibida:', data);
+            // Mostrar alerta en la página
+            const alertaContainer = document.getElementById('alertaContainer');
+            const alertaDiv = document.createElement('div');
+            alertaDiv.className = 'alerta';
+            alertaDiv.innerText = `Alerta de pánico: ${JSON.stringify(data)}`;
+            alertaContainer.appendChild(alertaDiv);
+        });
+    </script>
+</body>
+</html>

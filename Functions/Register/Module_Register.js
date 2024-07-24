@@ -400,6 +400,8 @@ function updateNombrePerfilElemento(req, res, nombre, elemento_Numero) {
 }
 
 
+
+
 module.exports = {
     addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken, ValidarRegistro,
     updateNombrePerfilElemento

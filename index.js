@@ -409,6 +409,11 @@ app.get('/help', (req, res) => {
   res.sendFile(path.join(__dirname, 'help', 'index.html'));
 });
 
+
+// Panel de administración de boton de panico
+app.get('/Panel-button', (req, res) => {
+  res.sendFile(path.join(__dirname, 'BotonPanico', 'PanelAlertas.html'));
+});
 // Ruta de ejemplo
 app.get('/test', (req, res) => {
   console.log('¡Hola, mundo!');
