@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/react-toastify/7.0.4/ReactToastify.min.css">
   <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <style>
   .App,
@@ -408,6 +410,27 @@
       transform: translateX(0);
     }
   }
+
+
+
+  .media-container {
+    max-width: 400px;
+    /* Ajusta esto según el tamaño deseado */
+    margin: 10px auto;
+  }
+
+  .media-image,
+  .media-video {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    /* Añade un borde redondeado si lo deseas */
+  }
+
+  .media-video {
+    max-height: 300px;
+    /* Ajusta esto según el tamaño deseado */
+  }
 </style>
 
 <body>
@@ -424,7 +447,9 @@
         <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Group Icon" class="group-icon" />
         <h2 id="titleChat" class="titleChat"></h2>
       </div>
-      <ul id="chatContainer" ref="chatContainerRef"></ul>
+      <ul id="chatContainer" ref="chatContainerRef">
+        
+      </ul>
       <div class="message-input-container">
         <input type="text" id="messageInput" placeholder="Escribe un mensaje..." />
         <button id="sendMessageButton"><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
@@ -438,7 +463,16 @@
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M10 3v4a1 1 0 0 1-1 1H5m14-4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 18h8l-2-4-1.5 2-2-4L8 18Zm7-8.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z" />
           </svg></button>
+        <button id="uploadVideoButton"><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Zm2 0V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm-2 4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H9Zm0 2h2v2H9v-2Zm7.965-.557a1 1 0 0 0-1.692-.72l-1.268 1.218a1 1 0 0 0-.308.721v.733a1 1 0 0 0 .37.776l1.267 1.032a1 1 0 0 0 1.631-.776v-2.984Z"
+              clip-rule="evenodd" />
+            </svg>
+        </button>
         <input type="file" id="fileInput" accept="image/*" style="display: none;" />
+        <input type="file" id="fileInputVIDEO" accept="video/*" style="display: none;" />
+
       </div>
     </div>
   </div>
@@ -448,20 +482,20 @@
   <div id="contextMenu" class="context-menu" style="display: none;">
     <ul>
       <li id="copyMessage">Copiar</li>
-     
+
     </ul>
   </div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const elemento = parseInt(urlParams.get('elementoId'));
-   let NombreGrupo='';
-   let NombreRemitente='';
-   let ID_Grupo ='';
+    let NombreGrupo = '';
+    let NombreRemitente = '';
+    let ID_Grupo = '';
 
     const backend = 'https://segubackend.com';
-   // const backend = 'https://192.168.1.90:3001';
-    
+    // const backend = 'https://192.168.1.90:3001';
+
     const socket = io(backend, {
       transports: ['websocket'],
       autoConnect: false,
@@ -484,6 +518,8 @@
         .then(response => {
           const data = response.data;
           console.log(data);
+         
+          console.log(data);
           emisor = data[0].NOMBRE_COMPLETO;
           NombreGrupo = data[0].GRUPO_DESCRIP;
           NombreRemitente = data[0].NOMBRE_COMPLETO;
@@ -493,7 +529,7 @@
           console.log("Nombre Grupo: " + NombreGrupo);
           console.log("Nombre Remitente: " + NombreRemitente);
           console.log("Elemento: " + data[0].ELEMENTO_NUM);
-
+          
           // Conectar al socket y luego unir al grupo
           socket.connect();
 
@@ -512,7 +548,9 @@
       document.addEventListener('click', handleClickOutside);
       document.getElementById('sendMessageButton').addEventListener('click', handleSendMessage);
       document.getElementById('uploadImageButton').addEventListener('click', handleImageUpload);
+      document.getElementById('uploadVideoButton').addEventListener('click', handleVideoUpload);
       document.getElementById('fileInput').addEventListener('change', handleFileInputChange);
+      document.getElementById('fileInputVIDEO').addEventListener('change', handleFileInputChangeVIDEO);
     });
 
     function populateGroupList(groups) {
@@ -559,34 +597,48 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
+
+
     function renderMessageContent(message) {
       if (message.MEDIA === 'TXT') {
         return `<p id="Mensaje">${message.MENSAJE}</p>`;
       } else if (message.MEDIA === 'AUDIO') {
         return `
-                    <div class="media-container">
-                        <audio controls>
-                            <source src="${backend}${message.UBICACION}" type="audio/aac" />
-                            Tu navegador no soporta el elemento de audio.
-                        </audio>
-                    </div>
-                `;
+      <div class="media-container">
+        <audio controls>
+          <source src="${backend}${message.UBICACION}" type="audio/aac" />
+          Tu navegador no soporta el elemento de audio.
+        </audio>
+      </div>
+    `;
       } else if (message.MEDIA === 'IMAGE') {
-  return `
-    <div class="media-container">
-      <img src="${backend}${message.UBICACION}" alt="Imagen enviada" class="media-image" onclick="openImageInNewTab('${backend}${message.UBICACION}')" />
-    </div>
-  `;
-}
- else {
+        return `
+      <div class="media-container">
+        <img src="${backend}${message.UBICACION}" alt="Imagen enviada" class="media-image" onclick="openImageInNewTab('${backend}${message.UBICACION}')" />
+      </div>
+    `;
+      } else if (message.MEDIA === 'VIDEO') {
+        return `
+      <div class="media-container">
+        <video controls class="media-video">
+          <source src="${backend}${message.UBICACION}" type="video/mp4" />
+          Tu navegador no soporta el elemento de video.
+        </video>
+      </div>
+    `;
+      } else {
         return `<p>Tipo de media no soportado</p>`;
       }
     }
 
-    // Función para abrir la imagen en una nueva pestaña
-function openImageInNewTab(url) {
-  window.open(url, '_blank');
-}
+    // Asegúrate de tener una función definida para abrir la imagen en una nueva pestaña
+    function openImageInNewTab(url) {
+      window.open(url, '_blank');
+    }
+
+
+
+
 
     function handleReceiveMessage(data) {
       showToast('Nuevo mensaje recibido');
@@ -597,55 +649,55 @@ function openImageInNewTab(url) {
     }
 
     function handleSendMessage() {
-  const messageInput = document.getElementById('messageInput');
-  const message = messageInput.value.trim();
-  if (message === '') {
-    showToast('No se puede enviar un mensaje vacío', 'error');
-    return;
-  }
-
-  socket.connect();
-
-  const formattedDate = getFormattedDate();
-  const currentDate = new Date();
-  const millisecondsSinceEpoch = currentDate.getTime();
-
-  const requestBody = {
-    MENSAJE_ID: millisecondsSinceEpoch,
-    FECHA: formattedDate,
-    RECEPTOR: selectedGroup.GRUPO_ID,
-    MENSAJE: message,
-    MEDIA: 'TXT',
-    UBICACION: 'NA',
-    GRUPO_ID: selectedGroup.GRUPO_ID,
-    ELEMENTO_NUMERO: elemento,
-    NOMBRE_REMITENTE: emisor,
-    GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
-    groupId: selectedGroup.GRUPO_ID,
-    NOMBRE: selectGroup.NOMBRE_COMPLETO,
-  };
-  console.log(requestBody);
-
-  const url = `${backend}/segucomunication/api/messages/group/${elemento}`;
-
-  axios.post(url, requestBody)
-    .then(response => {
-      if (response.status === 200) {
-        sendMessageSOCKETREALTIME(requestBody);
-        // Añadir el mensaje enviado a la lista de mensajes y renderizarlo
-        selectedGroup.MENSAJES.push(requestBody);
-        renderMessages(selectedGroup);
-        messageInput.value = '';
-        document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
-      } else {
-        throw new Error('Failed to send message');
+      const messageInput = document.getElementById('messageInput');
+      const message = messageInput.value.trim();
+      if (message === '') {
+        showToast('No se puede enviar un mensaje vacío', 'error');
+        return;
       }
-    })
-    .catch(error => {
-      console.error('Error sending message:', error);
-      showToast('Error al enviar el mensaje', 'error');
-    });
-}
+
+      socket.connect();
+
+      const formattedDate = getFormattedDate();
+      const currentDate = new Date();
+      const millisecondsSinceEpoch = currentDate.getTime();
+
+      const requestBody = {
+        MENSAJE_ID: millisecondsSinceEpoch,
+        FECHA: formattedDate,
+        RECEPTOR: selectedGroup.GRUPO_ID,
+        MENSAJE: message,
+        MEDIA: 'TXT',
+        UBICACION: 'NA',
+        GRUPO_ID: selectedGroup.GRUPO_ID,
+        ELEMENTO_NUMERO: elemento,
+        NOMBRE_REMITENTE: emisor,
+        GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
+        groupId: selectedGroup.GRUPO_ID,
+        NOMBRE: emisor
+      };
+      console.log(requestBody);
+
+      const url = `${backend}/segucomunication/api/messages/group/${elemento}`;
+
+      axios.post(url, requestBody)
+        .then(response => {
+          if (response.status === 200) {
+            sendMessageSOCKETREALTIME(requestBody);
+            // Añadir el mensaje enviado a la lista de mensajes y renderizarlo
+            selectedGroup.MENSAJES.push(requestBody);
+            renderMessages(selectedGroup);
+            messageInput.value = '';
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+          } else {
+            throw new Error('Failed to send message');
+          }
+        })
+        .catch(error => {
+          console.error('Error sending message:', error);
+          showToast('Error al enviar el mensaje', 'error');
+        });
+    }
 
     function sendMessageSOCKETREALTIME(message) {
       socket.emit('sendMessage', message);
@@ -704,6 +756,10 @@ function openImageInNewTab(url) {
       document.getElementById('fileInput').click();
     }
 
+    function handleVideoUpload() {
+      document.getElementById('fileInputVIDEO').click();
+    }
+
     function handleFileInputChange() {
       const file = document.getElementById('fileInput').files[0];
       if (file) {
@@ -711,7 +767,145 @@ function openImageInNewTab(url) {
       }
     }
 
-    async function uploadImage(fileInput) {
+    function handleFileInputChangeVIDEO() {
+    // Obtener el elemento de entrada de archivos
+    const fileInput = document.getElementById('fileInputVIDEO');
+    
+    // Verificar si el elemento de entrada de archivos existe
+    if (!fileInput) {
+        console.error("No se encontró el elemento de entrada de archivos.");
+        return;
+    }
+
+    // Obtener el archivo seleccionado
+    const file = fileInput.files[0];
+    console.log("Archivos disponibles:", fileInput.files);
+
+
+    // Verificar si se ha seleccionado un archivo
+    if (file) {
+        console.log("Archivo seleccionado:", file.name);
+        console.log("Tamaño del archivo:", file.size);
+        console.log("Tipo de archivo:", file.type);
+        
+        // Llamar a la función de carga de video
+        uploadVideo(file);
+    } else {
+        console.warn("No se ha seleccionado ningún archivo. en handle");
+    }
+}
+
+
+async function uploadVideo(file) {
+  try {
+    // Verificar si hay un archivo seleccionado
+    if (!file) {
+      throw new Error('No se ha seleccionado ningún archivo.');
+    }
+
+    const formData = new FormData();
+    formData.append('video', file);
+
+    // Configuración de la alerta de carga de SweetAlert2
+    const swalLoading = Swal.fire({
+      title: 'Cargando video...',
+      html: '<div class="spinner-border" role="status"></div>',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      onBeforeOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    const currentDate = new Date();
+    const offsetMinutes = currentDate.getTimezoneOffset();
+    const adjustedTimeMilliseconds = currentDate.getTime() + (offsetMinutes * 60 * 1000);
+    const adjustedDate = new Date(adjustedTimeMilliseconds);
+
+    const formattedDate = getFormattedDate();
+    const millisecondsSinceEpoch = new Date().getTime();
+
+    const requestBody = {
+      MENSAJE_ID: millisecondsSinceEpoch,
+      FECHA: formattedDate,
+      RECEPTOR: selectedGroup.GRUPO_ID,
+      MENSAJE: '',
+      MEDIA: 'VIDEO',
+      UBICACION: 'NA',
+      GRUPO_ID: selectedGroup.GRUPO_ID,
+      ELEMENTO_NUMERO: elemento,
+      NOMBRE_REMITENTE: emisor
+    };
+
+    formData.append('data', JSON.stringify(requestBody));
+
+    const url = `${backend}/segucomunication/api/messages/video/group/video/${elemento}/${selectedGroup.GRUPO_ID}`;
+
+    // Realizar la solicitud POST
+    const response = await axios.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    // Cerrar la alerta de carga al completar la carga
+    swalLoading.close();
+
+    // Verificar si la respuesta es exitosa
+    if (response.status === 200) {
+      const videoUrl = response.data.videoUrl.toString();
+
+      const newMessage = {
+        MENSAJE_ID: millisecondsSinceEpoch,
+        FECHA: formattedDate,
+        REMITENTE: elemento,
+        MENSAJE: '',
+        MEDIA: 'VIDEO',
+        NOMBRE: 'XSX',
+        UBICACION: videoUrl,
+        ELEMENTO_NUMERO: elemento,
+        NOMBRE_REMITENTE: emisor,
+        GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
+        groupId: selectedGroup.GRUPO_ID,
+        NOMBRE: selectedGroup.NOMBRE_COMPLETO,
+        GRUPO_ID: selectedGroup.GRUPO_ID
+      };
+
+      sendMessageSOCKETREALTIME(newMessage); // Enviar mensaje a través de Socket.IO
+
+      // Añadir el mensaje enviado a la lista de mensajes y renderizarlo
+      selectedGroup.MENSAJES.push(newMessage);
+      renderMessages(selectedGroup);
+
+      // Mostrar un mensaje de éxito
+      Swal.fire({
+        title: '¡Éxito!',
+        text: 'El video se ha cargado correctamente.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      });
+
+      // Liberar el recurso del archivo
+      document.getElementById('fileInputVIDEO').value = ''; // Reiniciar el input
+    } else {
+      throw new Error('Failed to send video');
+    }
+  } catch (error) {
+    console.error('Error sending video:', error);
+    
+    // Mostrar un mensaje de error
+    Swal.fire({
+      title: 'Error',
+      text: 'Hubo un problema al enviar el video.',
+      icon: 'error',
+      confirmButtonText: 'Intentar de nuevo'
+    });
+  }
+}
+
+
+
+async function uploadImage(fileInput) {
   try {
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
       throw new Error('No se ha seleccionado ningún archivo.');
@@ -721,6 +915,17 @@ function openImageInNewTab(url) {
 
     const formData = new FormData();
     formData.append('image', file);
+
+    // Configuración de la alerta de carga de SweetAlert2
+    const swalLoading = Swal.fire({
+      title: 'Cargando imagen...',
+      html: '<div class="spinner-border" role="status"></div>',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      onBeforeOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     const currentDate = new Date();
 
@@ -752,11 +957,15 @@ function openImageInNewTab(url) {
 
     const url = `${backend}/segucomunication/api/messages/image/group/image/${elemento}/${selectedGroup.GRUPO_ID}`;
 
+    // Realizar la solicitud POST
     const response = await axios.post(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
+
+    // Cerrar la alerta de carga al completar la carga
+    swalLoading.close();
 
     if (response.status === 200) {
       const imageUrl = response.data.imageUrl.toString(); // Ajusta según la estructura de tu respuesta
@@ -773,32 +982,58 @@ function openImageInNewTab(url) {
         NOMBRE_REMITENTE: emisor,
         GRUPO_DESCRIP: selectedGroup.GRUPO_DESCRIP,
         groupId: selectedGroup.GRUPO_ID,
-        NOMBRE: selectGroup.NOMBRE_COMPLETO,
+        NOMBRE: selectedGroup.NOMBRE_COMPLETO,
+        GRUPO_ID: selectedGroup.GRUPO_ID
       };
 
+      console.log(newMessage);
       sendMessageSOCKETREALTIME(newMessage); // Enviar mensaje a través de Socket.IO
-      
+
       // Añadir el mensaje enviado a la lista de mensajes y renderizarlo
       selectedGroup.MENSAJES.push(newMessage);
       renderMessages(selectedGroup);
 
-      //alert('¡Imagen enviada correctamente!');
+      // Mostrar un mensaje de éxito
+      Swal.fire({
+        title: '¡Éxito!',
+        text: 'La imagen se ha cargado correctamente.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      });
+
+      // Limpiar el campo de entrada
+      fileInput.value = ''; // Reiniciar el input
     } else {
       throw new Error('Failed to send image');
     }
   } catch (error) {
     console.error('Error sending image:', error);
+    
+    // Cerrar la alerta de carga al fallar
+    swalLoading.close();
+
+    // Mostrar un mensaje de error
+    Swal.fire({
+      title: 'Error',
+      text: 'Hubo un problema al enviar la imagen.',
+      icon: 'error',
+      confirmButtonText: 'Intentar de nuevo'
+    });
+
+    // Limpiar el campo de entrada
+    fileInput.value = ''; // Reiniciar el input
   }
 }
-//
 
 
 
-// Ejemplo de uso en un manejador de evento (por ejemplo, onChange de input type="file"):
-function handleFileInputChange(event) {
-  const fileInput = event.target; // Aquí asumimos que el evento se genera desde el input type="file"
-  uploadImage(fileInput);
-}
+
+    // Ejemplo de uso en un manejador de evento (por ejemplo, onChange de input type="file"):
+    
+    function handleFileInputChange(event) {
+      const fileInput = event.target; // Aquí asumimos que el evento se genera desde el input type="file"
+      uploadImage(fileInput);
+    }
 
     function showToast(message, type = 'info') {
       const toastContainer = document.getElementById('toastContainer');
