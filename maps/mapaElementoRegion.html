@@ -105,54 +105,60 @@
             map.setCenter(center);
 
             elementos.forEach(elemento => {
-                if (elemento.ELEMENTO_LATITUD && elemento.ELEMENTO_LONGITUD && elemento.ELEMENTO_LATITUD !== '' && elemento.ELEMENTO_LONGITUD !== '') {
-                    const lat = parseFloat(elemento.ELEMENTO_LATITUD);
-                    const lng = parseFloat(elemento.ELEMENTO_LONGITUD);
+    if (elemento.ELEMENTO_LATITUD && elemento.ELEMENTO_LONGITUD && elemento.ELEMENTO_LATITUD !== '' && elemento.ELEMENTO_LONGITUD !== '') {
+        const lat = parseFloat(elemento.ELEMENTO_LATITUD);
+        const lng = parseFloat(elemento.ELEMENTO_LONGITUD);
 
-                    if (!isNaN(lat) && !isNaN(lng)) {
-                        const elementoPosition = new google.maps.LatLng(lat, lng);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            const elementoPosition = new google.maps.LatLng(lat, lng);
 
-                        if (google.maps.geometry.poly.containsLocation(elementoPosition, polygon)) {
-                            const marker = new Marker({
-                                map,
-                                position: { lat, lng },
-                            });
+            // Validar la fecha de última localización
+            const lastLocationDate = new Date(elemento.ELEMENTO_ULTIMALOCAL);
+            const currentTime = new Date();
+            const timeDifference = (currentTime - lastLocationDate) / 1000 / 60; // Diferencia en minutos
 
-                            const date = new Date(elemento.ELEMENTO_ULTIMALOCAL);
-                            const formattedDate = date.toLocaleDateString('es-ES');
-                            const formattedTime = date.toLocaleTimeString('es-ES', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false
-                            });
+            // Verifica si la última localización está dentro de los últimos 10 minutos
+            if (google.maps.geometry.poly.containsLocation(elementoPosition, polygon) && timeDifference <= 10) {
+                const marker = new Marker({
+                    map,
+                    position: { lat, lng },
+                });
 
-                            const infoWindow = new InfoWindow({
-                                content: `
-                                    <div>
-                                        <h2>${elemento.ELEMENTO_NOMBRE} ${elemento.ELEMENTO_PATERNO} ${elemento.ELEMENTO_MATERNO}</h2>
-                                        <p><strong>Número de elemento:</strong> ${elemento.ELEMENTO_NUMERO}</p>
-                                        <p><strong>Teléfono:</strong> ${elemento.ELEMENTO_TELNUMERO}</p>
-                                        <p><strong>Última localización:</strong> ${formattedDate} a ${formattedTime}</p>
-                                        <p><strong>Región:</strong> ${elemento.REGION_DESCRIP}</p>
-                                        <p><strong>División:</strong> ${elemento.DIVISION_DESCRIP}</p>
-                                        <p><strong>Cargo:</strong> ${elemento.CARGO_DESCRIP}</p>
-                                        <p><strong>Base:</strong> ${elemento.BASE_DESCRIP}</p>
-                                        <p><strong>Turno:</strong> ${elemento.TURNO_DESCRIP}</p>
-                                    </div>
-                                `
-                            });
+                const formattedDate = lastLocationDate.toLocaleDateString('es-ES');
+                const formattedTime = lastLocationDate.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
 
-                            marker.addListener('mouseover', () => {
-                                infoWindow.open(map, marker);
-                            });
+                const infoWindow = new InfoWindow({
+                    content: `
+                        <div>
+                            <h2>${elemento.ELEMENTO_NOMBRE} ${elemento.ELEMENTO_PATERNO} ${elemento.ELEMENTO_MATERNO}</h2>
+                            <p><strong>Número de elemento:</strong> ${elemento.ELEMENTO_NUMERO}</p>
+                            <p><strong>Teléfono:</strong> ${elemento.ELEMENTO_TELNUMERO}</p>
+                            <p><strong>Última localización:</strong> ${formattedDate} a ${formattedTime}</p>
+                            <p><strong>Región:</strong> ${elemento.REGION_DESCRIP}</p>
+                            <p><strong>División:</strong> ${elemento.DIVISION_DESCRIP}</p>
+                            <p><strong>Cargo:</strong> ${elemento.CARGO_DESCRIP}</p>
+                            <p><strong>Base:</strong> ${elemento.BASE_DESCRIP}</p>
+                            <p><strong>Turno:</strong> ${elemento.TURNO_DESCRIP}</p>
+                        </div>
+                    `
+                });
 
-                            marker.addListener('click', () => {
-                                infoWindow.close();
-                            });
-                        }
-                    }
-                }
-            });
+                marker.addListener('mouseover', () => {
+                    infoWindow.open(map, marker);
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.close();
+                });
+            }
+        }
+    }
+});
+
         }
 
         // Extraer el valor de regionId desde la URL
