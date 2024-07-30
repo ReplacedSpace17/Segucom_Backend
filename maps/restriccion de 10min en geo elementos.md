@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Regiones y Elementos</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places,geometry"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
+    <style>
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+        .viewRegion {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="viewRegion">
+        <div id="map"></div>
+    </div>
+
+    <script>
+      const backendUrl = 'https://segubackend.com/backend';
+      
+        const transformPerimetro = (perimetro) => {
+            return perimetro.map(coord => ({
+                lat: parseFloat(coord.lat),
+                lng: parseFloat(coord.lng)
+            })).filter(coord => !isNaN(coord.lat) && !isNaN(coord.lng));
+        };
+
+        const calculateCenter = (coords) => {
+            const latSum = coords.reduce((sum, coord) => sum + coord.lat, 0);
+            const lngSum = coords.reduce((sum, coord) => sum + coord.lng, 0);
+            const lat = latSum / coords.length;
+            const lng = lngSum / coords.length;
+            return { lat, lng };
+        };
+
+        let map;
+        let mapRef = document.getElementById('map');
+        let selectedRegion = null;
+        let elementos = [];
+        let regiones = [];
+
+        const getRegionData = async (regionId) => {
+            try {
+                const [regionesResponse, elementosResponse] = await Promise.all([
+                    axios.get(`${backendUrl}/segucom/api/maps/geocercas/${regionId}`),
+                    axios.get(`${backendUrl}/segucom/api/maps/elementos/all`)
+                ]);
+
+                const regionID_Int = parseInt(regionId);
+                const regionObtenida = regionesResponse.data.find(r => r.GeocercaID === regionID_Int);
+                regiones = regionesResponse.data;
+                elementos = elementosResponse.data;
+                selectedRegion = regionObtenida;
+                const transformedPerimetro = transformPerimetro(regionObtenida.Perimetro);
+                const newCenter = calculateCenter(transformedPerimetro);
+                loadMap(newCenter);
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al cargar datos',
+                    text: error.response?.data?.message || error.message,
+                });
+            }
+        }
+
+        const loadMap = (center = { lat: 24.886, lng: -70.268 }) => {
+            if (!selectedRegion) {
+                console.error('No se ha seleccionado una región.');
+                return;
+            }
+
+            const { google } = window;
+            const { Map, Polygon, Marker, InfoWindow, geometry } = google.maps;
+
+            if (!geometry) {
+                console.error('google.maps.geometry is not loaded.');
+                return;
+            }
+
+            map = new Map(mapRef, {
+                center,
+                zoom: 10,
+                mapTypeId: 'terrain',
+            });
+
+            const polygon = new Polygon({
+                paths: transformPerimetro(selectedRegion.Perimetro),
+                strokeColor: '#073560',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#0C598F',
+                fillOpacity: 0.35,
+            });
+
+            polygon.setMap(map);
+            map.setCenter(center);
+
+           elementos.forEach(elemento => {
+    if (elemento.ELEMENTO_LATITUD && elemento.ELEMENTO_LONGITUD && elemento.ELEMENTO_LATITUD !== '' && elemento.ELEMENTO_LONGITUD !== '') {
+        const lat = parseFloat(elemento.ELEMENTO_LATITUD);
+        const lng = parseFloat(elemento.ELEMENTO_LONGITUD);
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+            const elementoPosition = new google.maps.LatLng(lat, lng);
+
+            // Validar la fecha de última localización
+            const lastLocationDate = new Date(elemento.ELEMENTO_ULTIMALOCAL);
+            const currentTime = new Date();
+            const timeDifference = (currentTime - lastLocationDate) / 1000 / 60; // Diferencia en minutos
+
+            // Verifica si la última localización está dentro de los últimos 10 minutos
+            if (google.maps.geometry.poly.containsLocation(elementoPosition, polygon) && timeDifference <= 10) {
+                const marker = new Marker({
+                    map,
+                    position: { lat, lng },
+                });
+
+                const formattedDate = lastLocationDate.toLocaleDateString('es-ES');
+                const formattedTime = lastLocationDate.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+
+                const infoWindow = new InfoWindow({
+                    content: `
+                        <div>
+                            <h2>${elemento.ELEMENTO_NOMBRE} ${elemento.ELEMENTO_PATERNO} ${elemento.ELEMENTO_MATERNO}</h2>
+                            <p><strong>Número de elemento:</strong> ${elemento.ELEMENTO_NUMERO}</p>
+                            <p><strong>Teléfono:</strong> ${elemento.ELEMENTO_TELNUMERO}</p>
+                            <p><strong>Última localización:</strong> ${formattedDate} a ${formattedTime}</p>
+                            <p><strong>Región:</strong> ${elemento.REGION_DESCRIP}</p>
+                            <p><strong>División:</strong> ${elemento.DIVISION_DESCRIP}</p>
+                            <p><strong>Cargo:</strong> ${elemento.CARGO_DESCRIP}</p>
+                            <p><strong>Base:</strong> ${elemento.BASE_DESCRIP}</p>
+                            <p><strong>Turno:</strong> ${elemento.TURNO_DESCRIP}</p>
+                        </div>
+                    `
+                });
+
+                marker.addListener('mouseover', () => {
+                    infoWindow.open(map, marker);
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.close();
+                });
+            }
+        }
+    }
+});
+debugger
+
+        }
+
+        // Extraer el valor de regionId desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const regionId = urlParams.get('regionId');
+        if (regionId) {
+            getRegionData(regionId);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se proporcionó un ID de región en la URL',
+            });
+        }
+    </script>
+</body>
+</html>
