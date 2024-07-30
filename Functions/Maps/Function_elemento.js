@@ -318,10 +318,43 @@ async function GetRastreoElemento(req, res, numeroElemento) {
 }
 
 
+async function getAlertaEmergencia(req, res, alarmaId) {
+    try {
+        const query = 'SELECT * FROM ALARMA_ELEMENTO WHERE ALARMA_ID = ?';
+        connection.query(query, [alarmaId], (error, results) => {
+            if (error) {
+                console.error('Error al obtener la alerta de emergencia:', error);
+                return res.status(500).json({ error: 'Error de servidor al obtener la alerta de emergencia' });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Alerta de emergencia no encontrada' });
+            }
+
+            const row = results[0]; // Suponemos que ALARMA_ID es único
+            const formattedResult = {
+                ALARMA_ID: row.ALARMA_ID,
+                ALARMA_FEC: moment.utc(row.ALARMA_FEC).tz('America/Mexico_City').format('YYYY-MM-DD HH:mm'),
+                ELEMENTO_NUMERO: row.ELEMENTO_NUMERO,
+                ELEMENTO_TEL_NUMERO: row.ELEMENTO_TEL_NUMERO,
+                ALARMA_UBICA: row.ALARMA_UBICA,
+                ALARMA_ACTIVA: row.ALARMA_ACTIVA
+            };
+
+            res.json(formattedResult);
+        });
+    } catch (error) {
+        console.error('Error inesperado:', error);
+        res.status(500).json({ error: 'Error de servidor inesperado' });
+    }
+}
+
+
 module.exports = {
     LocalizarElemento,
     UpdateUbicacion,
     LocalizarTodosElemento,
-    GetRastreoElemento
+    GetRastreoElemento,
+    getAlertaEmergencia
 };
 

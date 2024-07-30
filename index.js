@@ -91,7 +91,7 @@ const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, 
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION MAPS
 const { getGeocercas , getGeocercasID} = require('./Functions/Maps/Function_region');
-const { LocalizarElemento, UpdateUbicacion, LocalizarTodosElemento, GetRastreoElemento} = require('./Functions/Maps/Function_elemento');
+const { LocalizarElemento, UpdateUbicacion, LocalizarTodosElemento, GetRastreoElemento, getAlertaEmergencia} = require('./Functions/Maps/Function_elemento');
 const {getPuntosVigilancia, getElementosAsignados, getPuntosVigilanciaByID} = require('./Functions/Maps/FunctionPuntoVigilancia');
 const { Console } = require('console');
 
@@ -239,6 +239,12 @@ app.get('/segucom/api/maps/puntosvigilancia/:id', async (req, res) => {
 app.get('/segucom/api/maps/elemento/:id/rastreo', async (req, res) => {
   const numero_Elemento = req.params.id; //numero de elemento
   await GetRastreoElemento(req, res, numero_Elemento);
+});
+
+//Obtener la información de la alerta de emergencia
+app.get('/segucom/api/maps/alerta/boton-panico/:id', async (req, res) => {
+  const id = req.params.id;
+  await getAlertaEmergencia(req, res, id);
 });
 
 //-------------------------------------------------------------> Rutas de mapas
