@@ -51,8 +51,8 @@
         const getRegionData = async (regionId) => {
             try {
                 const [regionesResponse, elementosResponse] = await Promise.all([
-                    axios.get(${backendUrl}/segucom/api/maps/geocercas/${regionId}),
-                    axios.get(${backendUrl}/segucom/api/maps/elementos/all)
+                    axios.get(`${backendUrl}/segucom/api/maps/geocercas/${regionId}`),
+                    axios.get(`${backendUrl}/segucom/api/maps/elementos/all`)
                 ]);
 
                 const regionID_Int = parseInt(regionId);
@@ -127,7 +127,7 @@
                             });
 
                             const infoWindow = new InfoWindow({
-                                content: 
+                                content: `
                                     <div>
                                         <h2>${elemento.ELEMENTO_NOMBRE} ${elemento.ELEMENTO_PATERNO} ${elemento.ELEMENTO_MATERNO}</h2>
                                         <p><strong>Número de elemento:</strong> ${elemento.ELEMENTO_NUMERO}</p>
@@ -139,7 +139,7 @@
                                         <p><strong>Base:</strong> ${elemento.BASE_DESCRIP}</p>
                                         <p><strong>Turno:</strong> ${elemento.TURNO_DESCRIP}</p>
                                     </div>
-                                
+                                `
                             });
 
                             marker.addListener('mouseover', () => {
