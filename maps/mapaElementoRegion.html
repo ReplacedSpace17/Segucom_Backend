@@ -104,7 +104,7 @@
             polygon.setMap(map);
             map.setCenter(center);
 
-            elementos.forEach(elemento => {
+           elementos.forEach(elemento => {
     if (elemento.ELEMENTO_LATITUD && elemento.ELEMENTO_LONGITUD && elemento.ELEMENTO_LATITUD !== '' && elemento.ELEMENTO_LONGITUD !== '') {
         const lat = parseFloat(elemento.ELEMENTO_LATITUD);
         const lng = parseFloat(elemento.ELEMENTO_LONGITUD);
@@ -143,6 +143,7 @@
                             <p><strong>Cargo:</strong> ${elemento.CARGO_DESCRIP}</p>
                             <p><strong>Base:</strong> ${elemento.BASE_DESCRIP}</p>
                             <p><strong>Turno:</strong> ${elemento.TURNO_DESCRIP}</p>
+
                         </div>
                     `
                 });
@@ -158,6 +159,7 @@
         }
     }
 });
+
 
         }
 
