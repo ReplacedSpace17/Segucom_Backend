@@ -275,6 +275,11 @@ app.get('/maps/vigilancia/rastreo', (req, res) => {
 });
 //http://localhost:3000/maps/vigilancia/rastreo?elementoId=80000
 
+// Mapa de boton panico
+app.get('/maps/vigilancia/alerta/boton-panico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'maps', 'mapaBotonPanico.html'));
+});
+
 //-------------------------------------------------------------> Administrador de chats
 app.get('/segucom/web/administrador/chats', (req, res) => {
   res.sendFile(path.join(__dirname, 'Chats', 'AdministradorChats.html'));

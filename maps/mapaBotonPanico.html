@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Alerta Emergencia</title>
+    <style>
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+   
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places"></script>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        // Obtén el parámetro 'id' de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const alarmaId = parseInt(urlParams.get('id'));
+
+        let map;
+
+        const backendUrl = 'https://segubackend.com/backend';
+        // const backendUrl = 'http://192.168.1.90:3000';
+
+        const fetchAlertaEmergencia = async () => {
+            try {
+                const response = await axios.get(`${backendUrl}/segucom/api/maps/alerta/boton-panico/${alarmaId}`);
+                const alerta = response.data;
+
+                // Procesar la ubicación de ALARMA_UBICA
+                const ubicacion = alerta.ALARMA_UBICA.split(',');
+                const lat = parseFloat(ubicacion[0].split(':')[1]);
+                const lon = parseFloat(ubicacion[1].split(':')[1]);
+
+                initMap(lat, lon, alerta);
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al cargar la alerta',
+                    text: error.response ? error.response.data.message : error.message,
+                });
+            }
+        };
+
+        const initMap = (lat, lon, alerta) => {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: lat || 24.886, lng: lon || -70.268 },
+                zoom: 14,
+                mapTypeId: 'terrain'
+            });
+
+            const marker = new google.maps.Marker({
+                map: map,
+                position: { lat: lat, lng: lon }
+            });
+
+            const date = new Date(alerta.ALARMA_FEC);
+            const formattedDate = date.toLocaleDateString('es-ES');
+            const formattedTime = date.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div>
+                        <h2>Alerta de Emergencia</h2>
+                        <p><strong>ID de Alarma:</strong> ${alerta.ALARMA_ID}</p>
+                        <p><strong>Número de elemento:</strong> ${alerta.ELEMENTO_NUMERO}</p>
+                        <p><strong>Teléfono:</strong> ${alerta.ELEMENTO_TEL_NUMERO}</p>
+                        <p><strong>Fecha de alarma:</strong> ${formattedDate} a ${formattedTime}</p>
+                        <p><strong>Ubicación:</strong> ${alerta.ALARMA_UBICA}</p>
+                        <p><strong>Estado:</strong> ${alerta.ALARMA_ACTIVA ? 'Activa' : 'Inactiva'}</p>
+                    </div>
+                `
+            });
+
+            marker.addListener('mouseover', () => {
+                infoWindow.open(map, marker);
+            });
+
+            marker.addListener('click', () => {
+                infoWindow.close();
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', fetchAlertaEmergencia);
+    </script>
+</body>
+</html>
