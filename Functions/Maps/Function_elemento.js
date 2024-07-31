@@ -248,12 +248,123 @@ function isPointInPolygon(point, polygon) {
     });
 }
 
+///////////////////////////////////////////////////// punto de vigilancia verificar
+
+
+function VerifyPuntoVigilancia(numElemento) {
+    return new Promise((resolve, reject) => {
+        // Consulta para obtener el VIGILA_ID de la tabla PUNTO_ELEMENTO
+        const queryElemento = 'SELECT VIGILA_ID FROM PUNTO_ELEMENTO WHERE ELEMENTO_NUMERO = ?';
+        console.log('Verificando punto de vigilancia para elemento: ' + numElemento);
+
+        connection.query(queryElemento, [numElemento], (error, results) => {
+            if (error) {
+                console.error('Error al verificar punto de vigilancia:', error);
+                return reject(error);
+            }
+
+            // Si se encuentra un VIGILA_ID, retorna true; si no, false
+            const tienePuntoVigilancia = results.length > 0 && results[0].VIGILA_ID !== null;
+            console.log('Elemento ' + numElemento + (tienePuntoVigilancia ? ' tiene' : ' no tiene') + ' un punto de vigilancia asignado');
+            resolve(tienePuntoVigilancia);
+        });
+    });
+}
+
+function VerifyPuntoDentro(numElemento, lat, long) {
+    return new Promise((resolve, reject) => {
+        // Consulta para obtener el VIGILA_ID de la tabla PUNTO_ELEMENTO
+        const queryElemento = 'SELECT VIGILA_ID FROM PUNTO_ELEMENTO WHERE ELEMENTO_NUMERO = ?';
+        console.log('Verificando si el elemento está dentro de la zona de vigilancia: ' + numElemento);
+
+        connection.query(queryElemento, [numElemento], (error, results) => {
+            if (error) {
+                console.error('Error al verificar el VIGILA_ID:', error);
+                return reject(error);
+            }
+
+            if (results.length === 0 || results[0].VIGILA_ID === null) {
+                console.log('No se encontró el VIGILA_ID para el elemento ' + numElemento);
+                return resolve(false); // No hay VIGILA_ID
+            }
+
+            const vigilaId = results[0].VIGILA_ID;
+
+            // Consulta para obtener la latitud y longitud del punto de vigilancia
+            const queryVigilancia = 'SELECT VIGILA_LATITUD, VIGILA_LONGITUD FROM PUNTO_VIGILANCIA WHERE VIGILA_ID = ?';
+            connection.query(queryVigilancia, [vigilaId], (error, results) => {
+                if (error) {
+                    console.error('Error al verificar la ubicación del punto de vigilancia:', error);
+                    return reject(error);
+                }
+
+                if (results.length === 0) {
+                    console.log('No se encontró la ubicación para el VIGILA_ID ' + vigilaId);
+                    return resolve(false); // No hay datos de vigilancia
+                }
+
+                const vigilaLat = parseFloat(results[0].VIGILA_LATITUD);
+                const vigilaLong = parseFloat(results[0].VIGILA_LONGITUD);
+
+                // Calcular la distancia usando la fórmula de Haversine
+                const distance = haversineDistance(lat, long, vigilaLat, vigilaLong);
+
+                if (distance > 0.5) { // 0.5 km = 500 metros
+                    // Insertar en ELEMENTO_FUERA
+                    const insertQuery = 'INSERT INTO ELEMENTO_FUERA (FUERA_FECHA, FUERA_TIPO, FUERA_LOCALIZACION, ELEMENTO_NUMERO, FUERA_ESTATUS) VALUES (?, ?, ?, ?, ?)';
+                    const dateNow = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
+                    const fueraTipo = 2; // Tipo 2: punto de vigilancia
+                    const fueraLocalizacion = JSON.stringify({ lat: lat, lon: long });
+
+                    connection.query(insertQuery, [dateNow, fueraTipo, fueraLocalizacion, numElemento, 1], (error) => {
+                        if (error) {
+                            console.error('Error al insertar en ELEMENTO_FUERA:', error);
+                            return reject(error);
+                        }
+
+                        console.log('El elemento ' + numElemento + ' está fuera de la zona de vigilancia.');
+                        resolve(false);
+                    });
+                } else {
+                    console.log('El elemento ' + numElemento + ' está dentro de la zona de vigilancia.');
+                    resolve(true);
+                }
+            });
+        });
+    });
+}
+
+// Función para calcular la distancia entre dos puntos utilizando la fórmula de Haversine
+function haversineDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radio de la Tierra en kilómetros
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distancia en kilómetros
+}
+
+// Función para convertir grados a radianes
+function toRadians(degrees) {
+    return degrees * (Math.PI / 180);
+}
+
+
+
 
 //modificar ubicacion
 async function UpdateUbicacion(req, res, data, Num_tel) {
     try {
         const rondin = await VerifyMonitoreoRondin(Num_tel); // Verificar si el elemento tiene monitoreo de rondín
         const zona = await VerifyMonitoreoZona(Num_tel); // Verificar si el elemento tiene monitoreo de zona
+        
+        //verificar si tiene un punto de vigilancia asignado
+        const puntoVigilancia = await VerifyPuntoVigilancia(data.ELEMENTO_NUM);
+
+
         //console.log('Desea rondin?: ' + rondin);
 
         const query = 'UPDATE ELEMENTO SET ELEMENTO_LATITUD = ?, ELEMENTO_LONGITUD = ?, ELEMENTO_ULTIMALOCAL = ? WHERE ELEMENTO_TELNUMERO = ?';
@@ -277,7 +388,17 @@ async function UpdateUbicacion(req, res, data, Num_tel) {
                         console.log('Elemento dentro de zona');
                         //cambiar tabla ppor 1 por tratarse de zona y no punto de vigilancia
                         AddElementoFueraZona(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, 1, data.ELEMENTO_ULTIMALOCAL);
-                    } 
+                    }
+                    
+                   
+                    
+                }
+
+                 // si tiene un punto de vigilancia asignado
+                if (puntoVigilancia === true) {
+                   
+                    //evaluar si esta fuera del punto de vigilancia, pasandole el numero de elemento VerifyPuntoDentro(numElemento, lat, long)
+                    const punto = await VerifyPuntoDentro(data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD);
                 }
                 res.status(200).send('Ubicación actualizada con éxito');
             }
