@@ -235,9 +235,9 @@ function isPointInPolygon(point, polygon) {
     const localizacion = { lat: lat, lon: long };
 
     // Construir la consulta SQL para insertar en ELEMENTO_FUERA
-    const query = 'INSERT INTO ELEMENTO_FUERA (FUERA_FECHA, FUERA_TIPO, FUERA_LOCALIZACION, ELEMENTO_NUMERO) VALUES (?, ?, ?, ?)';
+    const query = 'INSERT INTO ELEMENTO_FUERA (FUERA_FECHA, FUERA_TIPO, FUERA_LOCALIZACION, ELEMENTO_NUMERO, FUERA_ESTATUS) VALUES (?, ?, ?, ?, ?)';
 
-    connection.query(query, [time, tipo, JSON.stringify(localizacion), numeroElemento], (error, results) => {
+    connection.query(query, [time, tipo, JSON.stringify(localizacion), numeroElemento, 1], (error, results) => {
         if (error) {
             console.error('Error al insertar en ELEMENTO_FUERA:', error);
             res.status(500).send(error);
