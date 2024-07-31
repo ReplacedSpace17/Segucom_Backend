@@ -312,7 +312,7 @@ function VerifyPuntoDentro(numElemento, lat, long) {
                 if (distance > 0.5) { // 0.5 km = 500 metros
                     // Insertar en ELEMENTO_FUERA
                     const insertQuery = 'INSERT INTO ELEMENTO_FUERA (FUERA_FECHA, FUERA_TIPO, FUERA_LOCALIZACION, ELEMENTO_NUMERO, FUERA_ESTATUS) VALUES (?, ?, ?, ?, ?)';
-                    const dateNow = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
+                    const dateNow = formatDate(new Date()); // Formatear fecha
                     const fueraTipo = 2; // Tipo 2: punto de vigilancia
                     const fueraLocalizacion = JSON.stringify({ lat: lat, lon: long });
 
@@ -352,6 +352,16 @@ function toRadians(degrees) {
     return degrees * (Math.PI / 180);
 }
 
+// Función para formatear la fecha en el formato 'YYYY-MM-DD HH:MM:SS'
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes empieza en 0
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
 
 
 
