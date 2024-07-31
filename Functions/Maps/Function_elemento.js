@@ -398,6 +398,7 @@ async function UpdateUbicacion(req, res, data, Num_tel) {
                         console.log('Elemento dentro de zona');
                         //cambiar tabla ppor 1 por tratarse de zona y no punto de vigilancia
                         AddElementoFueraZona(req, res, data.ELEMENTO_NUM, data.ELEMENTO_LATITUD, data.ELEMENTO_LONGITUD, 1, data.ELEMENTO_ULTIMALOCAL);
+                        console.log('Elemento fuera de geocerca con fecha: ' + data.ELEMENTO_ULTIMALOCAL);
                     }
                     
                    
