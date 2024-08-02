@@ -289,6 +289,11 @@ app.get('/maps/vigilancia/alerta/boton-panico', (req, res) => {
   res.sendFile(path.join(__dirname, 'maps', 'mapaBotonPanico.html'));
 });
 
+// Ruta para servir la página de mapas para rastreo de zona y punto
+app.get('/maps/rastreo/zona/punto', (req, res) => {
+  res.sendFile(path.join(__dirname, 'maps', 'mapaRastreoZonaPunto.html'));
+});
+
 //-------------------------------------------------------------> Administrador de chats
 app.get('/segucom/web/administrador/chats', (req, res) => {
   res.sendFile(path.join(__dirname, 'Chats', 'AdministradorChats.html'));

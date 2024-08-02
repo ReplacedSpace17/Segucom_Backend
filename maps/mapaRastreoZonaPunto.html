@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Elemento</title>
+    <style>
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+   
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places"></script>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const elementoNum = parseInt(urlParams.get('elemento'));
+        const fecha = urlParams.get('date');
+        const tipo = urlParams.get('type');
+
+        let map;
+
+        const backendUrl = 'https://segubackend.com/backend';
+        
+        const fetchPuntos = async () => {
+            try {
+                const response = await axios.get(`${backendUrl}/segucom/api/maps/alerta/puntos/fuera-zona/${elementoNum}/${fecha}/${tipo}`);
+                const puntos = response.data;
+
+                if (puntos.length === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se encontraron puntos para el elemento especificado',
+                    });
+                    return;
+                }
+
+                // Si hay más de 10 puntos, solo tomamos los últimos 6
+                const puntosToDisplay = puntos.length > 10 ? puntos.slice(-6) : puntos;
+
+                initMap(puntosToDisplay);
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al cargar puntos',
+                    text: error.response ? error.response.data.message : error.message,
+                });
+            }
+        };
+
+        const initMap = (puntos) => {
+            const initialPosition = {
+                lat: parseFloat(puntos[0].FUERA_LOCALIZACION.lat) || 24.886,
+                lng: parseFloat(puntos[0].FUERA_LOCALIZACION.lon) || -70.268
+            };
+
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: initialPosition,
+                zoom: 14,
+                mapTypeId: 'terrain'
+            });
+
+            const pathCoordinates = [];
+
+            puntos.forEach(punto => {
+                const { FUERA_LOCALIZACION } = punto;
+                const coords = JSON.parse(FUERA_LOCALIZACION); // Asumiendo que la localización está en formato JSON
+                pathCoordinates.push(new google.maps.LatLng(coords.lat, coords.lon));
+
+                const marker = new google.maps.Marker({
+                    map: map,
+                    position: coords
+                });
+            });
+
+            // Dibuja la ruta si hay más de 1 punto
+            if (pathCoordinates.length > 1) {
+                const flightPath = new google.maps.Polyline({
+                    path: pathCoordinates,
+                    geodesic: true,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                flightPath.setMap(map);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', fetchPuntos);
+    </script>
+</body>
+</html>
