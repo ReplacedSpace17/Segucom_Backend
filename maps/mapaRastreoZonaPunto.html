@@ -42,9 +42,9 @@
                     return;
                 }
 
-                // Si hay más de 10 puntos, solo tomamos los últimos 10
+                // Si hay más de 10 puntos, filtramos para mostrar solo cada 30 minutos
                 if (puntos.length > 10) {
-                    puntos = puntos.slice(-10);
+                    puntos = filterPuntosByTime(puntos);
                 }
 
                 console.log('Puntos a mostrar:', puntos); // Imprimir los puntos en la consola
@@ -57,6 +57,23 @@
                     text: error.response ? error.response.data.message : error.message,
                 });
             }
+        };
+
+        const filterPuntosByTime = (puntos) => {
+            const filtered = [];
+            const timeDifference = 30 * 60 * 1000; // 30 minutos en milisegundos
+            let lastTime = null;
+
+            puntos.forEach(punto => {
+                const dateTime = new Date(punto.FUERA_FECHA).getTime();
+
+                if (lastTime === null || (dateTime - lastTime >= timeDifference)) {
+                    filtered.push(punto);
+                    lastTime = dateTime;
+                }
+            });
+
+            return filtered;
         };
 
         const initMap = (puntos) => {
@@ -80,7 +97,7 @@
             const pathCoordinates = [];
 
             puntos.forEach(punto => {
-                const { FUERA_LOCALIZACION } = punto;
+                const { FUERA_LOCALIZACION, FUERA_FECHA, FUERA_TIPO } = punto;
                 const coords = JSON.parse(FUERA_LOCALIZACION); // Asumiendo que la localización está en formato JSON
                 console.log(`FUERA_LOCALIZACION: ${FUERA_LOCALIZACION}`); // Imprimir FUERA_LOCALIZACION
 
@@ -101,6 +118,8 @@
                         content: `<div>
                             <h2>Punto</h2>
                             <p><strong>Ubicación:</strong> (${lat}, ${lng})</p>
+                            <p><strong>Fecha:</strong> ${FUERA_FECHA}</p>
+                            <p><strong>Tipo:</strong> ${FUERA_TIPO}</p>
                         </div>`
                     });
 
