@@ -481,6 +481,7 @@ async function getAlertaEmergencia(req, res, alarmaId) {
     }
 }
 async function getPointsMapaAlertas(req, res, elementoNum, fecha, tipo) {
+    console.log('Obteniendo puntos del mapa de alertas para el elemento', elementoNum, 'en la fecha', fecha, 'y tipo', tipo);
     try {
         // Ajustamos la consulta para utilizar DATE() en la fecha
         const query = 'SELECT * FROM ELEMENTO_FUERA WHERE DATE(FUERA_FECHA) = ? AND ELEMENTO_NUMERO = ? AND FUERA_TIPO = ?';
