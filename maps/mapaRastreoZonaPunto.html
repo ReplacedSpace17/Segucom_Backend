@@ -82,6 +82,19 @@
                     map: map,
                     position: coords
                 });
+
+                // Crear ventana de información para cada marcador
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<div>
+                        <h2>Punto</h2>
+                        <p><strong>Ubicación:</strong> (${coords.lat}, ${coords.lon})</p>
+                    </div>`
+                });
+
+                // Mostrar ventana de información al hacer clic en el marcador
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
             });
 
             // Dibuja la ruta si hay más de 1 punto
