@@ -31,7 +31,7 @@
         const fetchPuntos = async () => {
             try {
                 const response = await axios.get(`${backendUrl}/segucom/api/maps/alerta/puntos/fuera-zona/${elementoNum}/${fecha}/${tipo}`);
-                const puntos = response.data;
+                let puntos = response.data;
 
                 if (puntos.length === 0) {
                     Swal.fire({
@@ -42,10 +42,14 @@
                     return;
                 }
 
-                // Si hay más de 10 puntos, solo tomamos los últimos 6
-                const puntosToDisplay = puntos.length > 10 ? puntos.slice(-6) : puntos;
+                // Si hay más de 10 puntos, solo tomamos los últimos 10
+                if (puntos.length > 10) {
+                    puntos = puntos.slice(-10);
+                }
 
-                initMap(puntosToDisplay);
+                console.log('Puntos a mostrar:', puntos); // Imprimir los puntos en la consola
+
+                initMap(puntos);
             } catch (error) {
                 Swal.fire({
                     icon: 'error',
@@ -71,7 +75,7 @@
 
             puntos.forEach(punto => {
                 const { FUERA_LOCALIZACION } = punto;
-                const coords = JSON.parse(FUERA_LOCALIZACION); // Convertir el string JSON a objeto
+                const coords = JSON.parse(FUERA_LOCALIZACION); // Asumiendo que la localización está en formato JSON
                 pathCoordinates.push(new google.maps.LatLng(coords.lat, coords.lon));
 
                 const marker = new google.maps.Marker({
