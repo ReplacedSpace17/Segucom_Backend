@@ -480,6 +480,37 @@ async function getAlertaEmergencia(req, res, alarmaId) {
         res.status(500).json({ error: 'Error de servidor inesperado' });
     }
 }
+async function getPointsMapaAlertas(req, res, elementoNum, fecha, tipo) {
+    try {
+        // Ajustamos la consulta para utilizar DATE() en la fecha
+        const query = 'SELECT * FROM ELEMENTO_FUERA WHERE DATE(FUERA_FECHA) = ? AND ELEMENTO_NUMERO = ? AND FUERA_TIPO = ?';
+        connection.query(query, [fecha, elementoNum, tipo], (error, results) => {
+            if (error) {
+                console.error('Error al obtener los puntos del mapa de alertas:', error);
+                return res.status(500).json({ error: 'Error de servidor al obtener los puntos del mapa de alertas' });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'No se encontraron alertas para el elemento especificado' });
+            }
+
+            const formattedResults = results.map(row => ({
+                FUERA_ID: row.FUERA_ID,
+                FUERA_FECHA: moment.utc(row.FUERA_FECHA).tz('America/Mexico_City').format('YYYY-MM-DD HH:mm'),
+                FUERA_TIPO: row.FUERA_TIPO,
+                FUERA_LOCALIZACION: row.FUERA_LOCALIZACION,
+                ELEMENTO_NUMERO: row.ELEMENTO_NUMERO,
+                FUERA_ESTATUS: row.FUERA_ESTATUS
+            }));
+
+            res.json(formattedResults);
+        });
+    } catch (error) {
+        console.error('Error inesperado:', error);
+        res.status(500).json({ error: 'Error de servidor inesperado' });
+    }
+}
+
 
 
 module.exports = {
@@ -487,6 +518,7 @@ module.exports = {
     UpdateUbicacion,
     LocalizarTodosElemento,
     GetRastreoElemento,
-    getAlertaEmergencia
+    getAlertaEmergencia,
+    getPointsMapaAlertas
 };
 
