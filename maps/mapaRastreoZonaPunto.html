@@ -32,6 +32,7 @@
             try {
                 const response = await axios.get(`${backendUrl}/segucom/api/maps/alerta/puntos/fuera-zona/${elementoNum}/${fecha}/${tipo}`);
                 const puntos = response.data;
+                console.log(puntos);
 
                 if (puntos.length === 0) {
                     Swal.fire({
