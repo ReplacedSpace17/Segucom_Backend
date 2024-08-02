@@ -13,7 +13,7 @@
    
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqGhOfTiOLBI4NJ9rk39YS74y3N6BqsVk&libraries=places"></script>
 </head>
 <body>
     <div id="map"></div>
@@ -61,9 +61,15 @@
 
         const initMap = (puntos) => {
             const initialPosition = {
-                lat: parseFloat(puntos[0].FUERA_LOCALIZACION.lat),
-                lng: parseFloat(puntos[0].FUERA_LOCALIZACION.lon)
+                lat: 24.886, // Valor por defecto en caso de que no se pueda extraer una posición válida
+                lng: -70.268
             };
+
+            if (puntos.length > 0) {
+                const firstLocation = JSON.parse(puntos[0].FUERA_LOCALIZACION);
+                initialPosition.lat = parseFloat(firstLocation.lat);
+                initialPosition.lng = parseFloat(firstLocation.lon);
+            }
 
             map = new google.maps.Map(document.getElementById('map'), {
                 center: initialPosition,
@@ -76,8 +82,9 @@
             puntos.forEach(punto => {
                 const { FUERA_LOCALIZACION } = punto;
                 const coords = JSON.parse(FUERA_LOCALIZACION); // Asumiendo que la localización está en formato JSON
-                
-                // Verificar que lat y lon sean números válidos
+                console.log(`FUERA_LOCALIZACION: ${FUERA_LOCALIZACION}`); // Imprimir FUERA_LOCALIZACION
+
+                // Verificar que las coordenadas sean números válidos
                 const lat = parseFloat(coords.lat);
                 const lng = parseFloat(coords.lon);
 
