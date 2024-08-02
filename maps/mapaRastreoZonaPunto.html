@@ -32,7 +32,6 @@
             try {
                 const response = await axios.get(`${backendUrl}/segucom/api/maps/alerta/puntos/fuera-zona/${elementoNum}/${fecha}/${tipo}`);
                 const puntos = response.data;
-                console.log(puntos);
 
                 if (puntos.length === 0) {
                     Swal.fire({
@@ -72,7 +71,7 @@
 
             puntos.forEach(punto => {
                 const { FUERA_LOCALIZACION } = punto;
-                const coords = JSON.parse(FUERA_LOCALIZACION); // Asumiendo que la localización está en formato JSON
+                const coords = JSON.parse(FUERA_LOCALIZACION); // Convertir el string JSON a objeto
                 pathCoordinates.push(new google.maps.LatLng(coords.lat, coords.lon));
 
                 const marker = new google.maps.Marker({
