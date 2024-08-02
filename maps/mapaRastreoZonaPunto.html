@@ -61,8 +61,8 @@
 
         const initMap = (puntos) => {
             const initialPosition = {
-                lat: parseFloat(puntos[0].FUERA_LOCALIZACION.lat) || 24.886,
-                lng: parseFloat(puntos[0].FUERA_LOCALIZACION.lon) || -70.268
+                lat: parseFloat(puntos[0].FUERA_LOCALIZACION.lat),
+                lng: parseFloat(puntos[0].FUERA_LOCALIZACION.lon)
             };
 
             map = new google.maps.Map(document.getElementById('map'), {
@@ -76,25 +76,34 @@
             puntos.forEach(punto => {
                 const { FUERA_LOCALIZACION } = punto;
                 const coords = JSON.parse(FUERA_LOCALIZACION); // Asumiendo que la localización está en formato JSON
-                pathCoordinates.push(new google.maps.LatLng(coords.lat, coords.lon));
+                
+                // Verificar que lat y lon sean números válidos
+                const lat = parseFloat(coords.lat);
+                const lng = parseFloat(coords.lon);
 
-                const marker = new google.maps.Marker({
-                    map: map,
-                    position: coords
-                });
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    pathCoordinates.push(new google.maps.LatLng(lat, lng));
 
-                // Crear ventana de información para cada marcador
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `<div>
-                        <h2>Punto</h2>
-                        <p><strong>Ubicación:</strong> (${coords.lat}, ${coords.lon})</p>
-                    </div>`
-                });
+                    const marker = new google.maps.Marker({
+                        map: map,
+                        position: { lat: lat, lng: lng }
+                    });
 
-                // Mostrar ventana de información al hacer clic en el marcador
-                marker.addListener('click', () => {
-                    infoWindow.open(map, marker);
-                });
+                    // Crear ventana de información para cada marcador
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<div>
+                            <h2>Punto</h2>
+                            <p><strong>Ubicación:</strong> (${lat}, ${lng})</p>
+                        </div>`
+                    });
+
+                    // Mostrar ventana de información al hacer clic en el marcador
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+                } else {
+                    console.warn(`Coordenadas no válidas para el punto: ${JSON.stringify(punto)}`);
+                }
             });
 
             // Dibuja la ruta si hay más de 1 punto
