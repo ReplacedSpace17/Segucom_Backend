@@ -194,12 +194,11 @@ async function loginUser(req, res, telefono, clave, androidID) {
         JOIN ELEMENTO ON PERFIL_ELEMENTO.ELEMENTO_NUMERO = ELEMENTO.ELEMENTO_NUMERO
         WHERE PERFIL_ELEMENTO.ELEMENTO_TELNUMERO = ? 
         AND ELEMENTO.ELEMENTO_ACTIVO = 1
-        AND PERFIL_ELEMENTO.PERFIL_ANDROID = ?
     `;
     console.log('Recibiendo el telefono, clave y androidID:', telefono + ' ' + clave + ' ' + androidID);
     
-    // Ejecutar la consulta con el teléfono y androidID
-    connection.query(loginScript, [telefono, androidID], async (error, results) => {
+    // Ejecutar la consulta con el teléfono
+    connection.query(loginScript, [telefono], async (error, results) => {
         if (error) {
             console.error('Error al realizar el inicio de sesión', error);
             return res.status(500).json({ error: 'Error de servidor al realizar el inicio de sesión' });
@@ -208,10 +207,16 @@ async function loginUser(req, res, telefono, clave, androidID) {
         console.log('Resultados:', results);
         
         if (results.length === 1) {
+            // Verificar si el androidID coincide
+            if (results[0].PERFIL_ANDROID !== androidID) {
+                console.log('androidID no coincide');
+                return res.status(403).json({ error: 'androidID no coincide' }); // Cambia el código de estado
+            }
+            
             // Verificar si perfilclave es diferente a null o vacía
             if (results[0].PERFIL_CLAVE === null || results[0].PERFIL_CLAVE === '') {
                 console.log('El perfil no tiene una contraseña establecida');
-                res.status(401).json({ error: 'El perfil no tiene una contraseña establecida' });
+                return res.status(401).json({ error: 'El perfil no tiene una contraseña establecida' });
             } else {
                 const isPasswordMatch = await comparePasswords(clave, results[0].PERFIL_CLAVE);
                 if (isPasswordMatch) {
@@ -220,13 +225,13 @@ async function loginUser(req, res, telefono, clave, androidID) {
                     
                     // Mostrar token
                     console.log(token);
-                    res.status(200).json({ ...results[0], token });
+                    return res.status(200).json({ ...results[0], token });
                 } else {
-                    res.status(401).json({ error: 'Credenciales inválidas' });
+                    return res.status(401).json({ error: 'Credenciales inválidas' });
                 }
             }
         } else {
-            res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
+            return res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
         }
     });
 }
