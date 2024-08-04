@@ -86,7 +86,7 @@ const uploadConsignas = multer({ storage: storage('consignas') });
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
 const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications,
-  ValidarRegistro, updateNombrePerfilElemento
+  ValidarRegistro, updateNombrePerfilElemento, getInfoNombre
  } = require('./Functions/Register/Module_Register');
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION MAPS
