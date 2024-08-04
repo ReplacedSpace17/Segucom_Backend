@@ -210,7 +210,7 @@ async function loginUser(req, res, telefono, clave, androidID) {
             // Verificar si el androidID coincide
             if (results[0].PERFIL_ANDROID !== androidID) {
                 console.log('androidID no coincide');
-                return res.status(403).json({ error: 'androidID no coincide' }); // Cambia el código de estado
+                return res.status(403).json({ error: 'Este Android ID no está autorizado para usar esta cuenta' }); // Cambia el código de estado
             }
             
             // Verificar si perfilclave es diferente a null o vacía
