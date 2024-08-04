@@ -400,9 +400,30 @@ function updateNombrePerfilElemento(req, res, nombre, elemento_Numero) {
 }
 
 
+async function getInfoNombre(req, res, TelNum) {
+    const getNameQuery = `
+        SELECT 
+            CONCAT(e.ELEMENTO_NOMBRE, ' ', e.ELEMENTO_PATERNO) AS nombreCompleto
+        FROM ELEMENTO e
+        WHERE e.ELEMENTO_TELNUMERO = ?
+    `;
+
+    connection.query(getNameQuery, [TelNum], (error, results) => {
+        if (error) {
+            console.error('Error al obtener el nombre y apellido del elemento', error);
+            return res.status(500).json({ error: 'Error de servidor al obtener información del nombre' });
+        }
+
+        if (results.length > 0) {
+            res.status(200).json({ nombreCompleto: results[0].nombreCompleto });
+        } else {
+            res.status(404).json({ error: 'No se encontró información del nombre para el número de teléfono proporcionado' });
+        }
+    });
+}
 
 
 module.exports = {
     addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken, ValidarRegistro,
-    updateNombrePerfilElemento
+    updateNombrePerfilElemento, getInfoNombre
 };

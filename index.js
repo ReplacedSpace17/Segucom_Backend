@@ -181,6 +181,13 @@ app.get('/segucom/api/user/personal/app/:id', async (req, res) => {
   await getInfoPerfilApp(req, res, telefono);
 });
 
+//obtener el nombre getInfoNombre
+app.get('/segucom/api/user/nombre/:numero_elemento', async (req, res) => {
+  const numero_elemento = req.params.numero_elemento;
+  console.log('Obteniendo nombre de elemento: ' + numero_elemento);
+  await getInfoNombre(req, res, numero_elemento);
+});
+
 //obtener el conteo de boletines no confirmados
 //http://localhost:3000/segucom/api/user/boletines/80000
 app.get('/segucom/api/user/boletines/:elemento_Numero', async (req, res) => {
