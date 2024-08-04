@@ -460,5 +460,5 @@ async function getInfoNombre(req, res, TelNum) {
 
 module.exports = {
     addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken, ValidarRegistro,
-    updateNombrePerfilElemento, getInfoNombre
+    updateNombrePerfilElemento, getInfoNombre, getAndroidID
 };
