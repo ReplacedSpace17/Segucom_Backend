@@ -122,8 +122,8 @@ app.post('/segucom/api/user', async (req, res) => {
 
 // Iniciar sesión
 app.post('/segucom/api/login', async (req, res) => {
-  const { telefono, clave } = req.body;
-  await loginUser(req, res, telefono, clave);
+  const { telefono, clave, androidID } = req.body;
+  await loginUser(req, res, telefono, clave, androidID);
 });
 
 //actualizar nombre updateNombrePerfilElemento

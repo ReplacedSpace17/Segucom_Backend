@@ -187,26 +187,28 @@ async function comparePasswords(plainPassword, hashedPassword) {
 }
 
 // Función para realizar el inicio de sesión
-async function loginUser(req, res, telefono, clave) {
+async function loginUser(req, res, telefono, clave, androidID) {
     const loginScript = `
         SELECT * 
         FROM PERFIL_ELEMENTO 
         JOIN ELEMENTO ON PERFIL_ELEMENTO.ELEMENTO_NUMERO = ELEMENTO.ELEMENTO_NUMERO
         WHERE PERFIL_ELEMENTO.ELEMENTO_TELNUMERO = ? 
         AND ELEMENTO.ELEMENTO_ACTIVO = 1
+        AND PERFIL_ELEMENTO.PERFIL_ANDROID = ?
     `;
-    console.log('Recibiendo el telefono y clave:', telefono + ' ' + clave);
-    connection.query(loginScript, [telefono], async (error, results) => {
+    console.log('Recibiendo el telefono, clave y androidID:', telefono + ' ' + clave + ' ' + androidID);
+    
+    // Ejecutar la consulta con el teléfono y androidID
+    connection.query(loginScript, [telefono, androidID], async (error, results) => {
         if (error) {
             console.error('Error al realizar el inicio de sesión', error);
             return res.status(500).json({ error: 'Error de servidor al realizar el inicio de sesión' });
         }
  
         console.log('Resultados:', results);
-        //
+        
         if (results.length === 1) {
-
-            //verificar si perfilclave es diferente a null o vacia
+            // Verificar si perfilclave es diferente a null o vacía
             if (results[0].PERFIL_CLAVE === null || results[0].PERFIL_CLAVE === '') {
                 console.log('El perfil no tiene una contraseña establecida');
                 res.status(401).json({ error: 'El perfil no tiene una contraseña establecida' });
@@ -215,24 +217,20 @@ async function loginUser(req, res, telefono, clave) {
                 if (isPasswordMatch) {
                     // Generar un token de autenticación
                     const token = jwt.sign({ telefono: results[0].ELEMENTO_TELNUMERO }, 'secretKey');
-    
-    
-    
-                    //mostrar token
+                    
+                    // Mostrar token
                     console.log(token);
                     res.status(200).json({ ...results[0], token });
                 } else {
                     res.status(401).json({ error: 'Credenciales inválidas' });
                 }
             }
-
-
-       
         } else {
             res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
         }
     });
 }
+
 
 function verifyToken(req, res, tokent) {
     const token = req.headers['authorization'];
