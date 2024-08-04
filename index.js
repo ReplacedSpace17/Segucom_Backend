@@ -87,7 +87,7 @@ const uploadConsignas = multer({ storage: storage('consignas') });
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
 const { addUserPersonal, loginUser,  updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications,
   ValidarRegistro, updateNombrePerfilElemento, getInfoNombre, 
-  getAndroidID } = require('./Functions/Register/Module_Register');
+  getAndroidID, updateAndroidID } = require('./Functions/Register/Module_Register');
 
 const { getGeocercas , getGeocercasID} = require('./Functions/Maps/Function_region');
 const { LocalizarElemento, UpdateUbicacion, LocalizarTodosElemento, GetRastreoElemento, getAlertaEmergencia,
@@ -130,6 +130,14 @@ app.get('/segucom/api/user/android/:numero_elemento', async (req, res) => {
   const numero_elemento = req.params.numero_elemento;
   console.log('Obteniendo android id de elemento: ' + numero_elemento);
   await getAndroidID(req, res, numero_elemento);
+});
+
+//actualizar el android id updateAndroidID
+app.put('/segucom/api/user/android/updateID', async (req, res) => {
+  const { elemento, telefono, clave, androidID } = req.body;
+  console.log('Actualizando android id de elemento: ' + elemento + ' con el android id: ' + androidID);
+  await updateAndroidID(req, res, telefono, elemento, clave, androidID);
+
 });
 
 

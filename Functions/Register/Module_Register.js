@@ -240,6 +240,64 @@ async function loginUser(req, res, telefono, clave, androidID) {
     });
 }
 
+async function updateAndroidID(req, res, numeroTelefono, numeroElemento, password, androidID) {
+    const loginScript = `
+        SELECT * 
+        FROM PERFIL_ELEMENTO 
+        JOIN ELEMENTO ON PERFIL_ELEMENTO.ELEMENTO_NUMERO = ELEMENTO.ELEMENTO_NUMERO
+        WHERE PERFIL_ELEMENTO.ELEMENTO_TELNUMERO = ? 
+        AND ELEMENTO.ELEMENTO_ACTIVO = 1
+    `;
+    
+    console.log('Recibiendo el numero de teléfono, password y androidID:', numeroTelefono, password, androidID);
+    
+    // Ejecutar la consulta con el número de teléfono
+    connection.query(loginScript, [numeroTelefono], async (error, results) => {
+        if (error) {
+            console.error('Error al realizar la consulta', error);
+            return res.status(500).json({ error: 'Error de servidor al realizar la consulta' });
+        }
+
+        console.log('Resultados:', results);
+        
+        if (results.length === 1) {
+            // Verificar si el perfil clave es diferente a null o vacía
+            if (results[0].PERFIL_CLAVE === null || results[0].PERFIL_CLAVE === '') {
+                console.log('El perfil no tiene una contraseña establecida');
+                return res.status(401).json({ error: 'El perfil no tiene una contraseña establecida' });
+            } else {
+                const isPasswordMatch = await comparePasswords(password, results[0].PERFIL_CLAVE);
+                if (isPasswordMatch) {
+                    // Actualizar el Android ID
+                    const updateScript = `
+                        UPDATE PERFIL_ELEMENTO 
+                        SET PERFIL_ANDROID = ? 
+                        WHERE ELEMENTO_TELNUMERO = ? 
+                        AND ELEMENTO_NUMERO = ?
+                    `;
+                    connection.query(updateScript, [androidID, numeroTelefono, numeroElemento], (updateError, updateResults) => {
+                        if (updateError) {
+                            console.error('Error al actualizar el Android ID', updateError);
+                            return res.status(500).json({ error: 'Error de servidor al actualizar el Android ID' });
+                        }
+
+                        // Verificar si se actualizó algún registro
+                        if (updateResults.affectedRows > 0) {
+                            return res.status(200).json({ message: 'Android ID actualizado, ya puedes iniciar sesión' });
+                        } else {
+                            return res.status(404).json({ error: 'No se encontró el registro para actualizar' });
+                        }
+                    });
+                } else {
+                    return res.status(401).json({ error: 'Credenciales inválidas' });
+                }
+            }
+        } else {
+            return res.status(403).json({ error: 'Este usuario está inactivo' });
+        }
+    });
+}
+
 // Función para obtener el Android ID por número de teléfono
 async function getAndroidID(req, res, telefono) {
     const query = `
@@ -460,5 +518,5 @@ async function getInfoNombre(req, res, TelNum) {
 
 module.exports = {
     addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications, verifyToken, ValidarRegistro,
-    updateNombrePerfilElemento, getInfoNombre, getAndroidID
+    updateNombrePerfilElemento, getInfoNombre, getAndroidID, updateAndroidID
 };
