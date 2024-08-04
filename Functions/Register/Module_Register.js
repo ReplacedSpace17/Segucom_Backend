@@ -231,7 +231,7 @@ async function loginUser(req, res, telefono, clave, androidID) {
                 }
             }
         } else {
-            return res.status(403).json({ error: 'Credenciales inválidas o usuario inactivo' });
+            return res.status(403).json({ error: 'Este usuario está inactivo' });
         }
     });
 }
