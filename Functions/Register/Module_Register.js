@@ -225,7 +225,11 @@ async function loginUser(req, res, telefono, clave, androidID) {
                     
                     // Mostrar token
                     console.log(token);
-                    return res.status(200).json({ ...results[0], token });
+                    return res.status(200).json({
+                        ...results[0],
+                        token,
+                        androidID: results[0].PERFIL_ANDROID // Agregar el androidID a la respuesta
+                    });
                 } else {
                     return res.status(401).json({ error: 'Credenciales inválidas' });
                 }
@@ -235,6 +239,7 @@ async function loginUser(req, res, telefono, clave, androidID) {
         }
     });
 }
+
 
 
 function verifyToken(req, res, tokent) {
