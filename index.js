@@ -85,11 +85,10 @@ const uploadBoletines = multer({ storage: storage('boletines') });
 const uploadConsignas = multer({ storage: storage('consignas') });
 
 //-------------------------------------------------------------> IMPORTS DE FUNCTION SEGUCOM
-const { addUserPersonal, loginUser, updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications,
-  ValidarRegistro, updateNombrePerfilElemento, getInfoNombre
- } = require('./Functions/Register/Module_Register');
+const { addUserPersonal, loginUser,  updatePerfilElemento, getInformationPerfil, getInfoPerfilApp, getNotifications,
+  ValidarRegistro, updateNombrePerfilElemento, getInfoNombre, 
+  getAndroidID } = require('./Functions/Register/Module_Register');
 
-//-------------------------------------------------------------> IMPORTS DE FUNCTION MAPS
 const { getGeocercas , getGeocercasID} = require('./Functions/Maps/Function_region');
 const { LocalizarElemento, UpdateUbicacion, LocalizarTodosElemento, GetRastreoElemento, getAlertaEmergencia,
   getPointsMapaAlertas
@@ -125,6 +124,14 @@ app.post('/segucom/api/login', async (req, res) => {
   const { telefono, clave, androidID } = req.body;
   await loginUser(req, res, telefono, clave, androidID);
 });
+
+//obtener el android id getAndroidID
+app.get('/segucom/api/user/android/:numero_elemento', async (req, res) => {
+  const numero_elemento = req.params.numero_elemento;
+  console.log('Obteniendo android id de elemento: ' + numero_elemento);
+  await getAndroidID(req, res, numero_elemento);
+});
+
 
 //actualizar nombre updateNombrePerfilElemento
 app.put('/segucom/api/user/nombre/:numero_elemento', async (req, res) => {

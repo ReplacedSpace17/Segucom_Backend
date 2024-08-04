@@ -240,6 +240,33 @@ async function loginUser(req, res, telefono, clave, androidID) {
     });
 }
 
+// Función para obtener el Android ID por número de teléfono
+async function getAndroidID(req, res, telefono) {
+    const query = `
+        SELECT PERFIL_ANDROID 
+        FROM PERFIL_ELEMENTO 
+        WHERE ELEMENTO_TELNUMERO = ?
+    `;
+    
+    console.log('Consultando Android ID para el teléfono:', telefono);
+    
+    // Ejecutar la consulta con el número de teléfono
+    connection.query(query, [telefono], (error, results) => {
+        if (error) {
+            console.error('Error al obtener el Android ID', error);
+            return res.status(500).json({ error: 'Error de servidor al obtener el Android ID' });
+        }
+
+        // Comprobar si se encontró el registro
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Número de teléfono no encontrado' });
+        }
+
+        // Retornar el Android ID
+        const androidID = results[0].PERFIL_ANDROID;
+        return res.status(200).json({ androidID });
+    });
+}
 
 
 function verifyToken(req, res, tokent) {
