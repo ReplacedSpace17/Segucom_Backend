@@ -8,8 +8,12 @@ sudo ufw allow ssh
 
 ssh user@ip -p 22
 
-#server ssh
+#server ssh 1
 sermex-segu
+S3rs6uc0
+
+#server ssh server 2 respaldo
+sermex-segu2
 S3rs6uc0
 
 
