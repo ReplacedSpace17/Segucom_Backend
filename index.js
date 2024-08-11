@@ -535,11 +535,7 @@ app.get('/logs-backup', (req, res) => {
                   </head>
                   <body>
                       <h1>Logs de Backup</h1>
-                      <div class="filter-container">
-                          <input type="date" id="date-filter" class="filter-input" value="${filter.date || ''}">
-                          <input type="text" id="operation-filter" class="filter-input" placeholder="Tipo de operación" value="${filter.operation || ''}">
-                          <button id="filter-button">Filtrar</button>
-                      </div>
+                      
                       <div id="log-container">
                           ${filteredLogs.map(log => {
                               const [date, time, operation] = log.split(', ');
