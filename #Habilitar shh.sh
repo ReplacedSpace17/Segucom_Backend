@@ -34,6 +34,9 @@ s3guC0m@7am
 ssh sermex-segu@segubackend.com -p 22
 S3rs6uc0
 
+ssh sermex-segu2@segubackend.com -p 4040
+S3rs6uc0
+
 #ss interno
 ssh sermex-segu@192.168.1.71 -p 22
 S3rs6uc0
