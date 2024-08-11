@@ -14,6 +14,9 @@ const http = require('http');
 const app = express();
 const port = 3000;
 const jwt = require('jsonwebtoken');
+
+const { Client } = require('ssh2');
+
 // Configuración de CORS
 const corsOptions = {
   origin: ['https://segucom.mx', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500', '*', 'http://192.168.1.68/', 'https://localhost:3000',
@@ -470,6 +473,101 @@ app.get('/test', (req, res) => {
 // Ruta de inicio
 app.get('/', (req, res) => {
   res.send('Backend raiz');
+});
+
+// Configuración de la conexión SSH
+const sshConfig = {
+  host: 'segubackend.com',
+  port: 4040,
+  username: 'sermex-segu2',
+  password: 'S3rs6uc0',
+};
+
+// Función para procesar los logs y filtrarlos
+const processLogs = (data, filter) => {
+  const logs = data.split('\n').filter(entry => entry);
+  return logs.filter(log => {
+      const [date, time, operation] = log.split(', ');
+      const dateTime = `${date} ${time}`;
+      // Filtrar por fecha
+      const dateFilter = filter.date ? date === filter.date : true;
+      // Filtrar por operación
+      const operationFilter = filter.operation ? operation.includes(filter.operation) : true;
+      return dateFilter && operationFilter;
+  });
+};
+
+// Endpoint para obtener el archivo de logs como texto y renderizar HTML
+app.get('/logs-backup', (req, res) => {
+  const conn = new Client();
+  
+  conn.on('ready', () => {
+      console.log('Conectado al servidor SSH');
+      
+      conn.exec('cat /home/sermex-segu2/RESPALDOS/logsBackup.txt', (err, stream) => {
+          if (err) {
+              return res.status(500).send(`Error al ejecutar el comando: ${err.message}`);
+          }
+          
+          let data = '';
+          stream.on('close', (code, signal) => {
+              conn.end();
+              // Renderizar el HTML con los logs
+              const filter = { date: req.query.date, operation: req.query.operation };
+              const filteredLogs = processLogs(data, filter);
+              const html = `
+                  <!DOCTYPE html>
+                  <html lang="es">
+                  <head>
+                      <meta charset="UTF-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <title>Logs de Backup</title>
+                      <style>
+                          body { font-family: Arial, sans-serif; margin: 20px; }
+                          h1 { text-align: center; }
+                          .filter-container { margin-bottom: 20px; text-align: center; }
+                          .log-entry { border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 5px; }
+                          .log-date { font-weight: bold; }
+                          .log-time { color: #555; }
+                          .log-operation { color: #007BFF; }
+                          .filter-input { margin: 0 10px; }
+                      </style>
+                  </head>
+                  <body>
+                      <h1>Logs de Backup</h1>
+                      <div class="filter-container">
+                          <input type="date" id="date-filter" class="filter-input" value="${filter.date || ''}">
+                          <input type="text" id="operation-filter" class="filter-input" placeholder="Tipo de operación" value="${filter.operation || ''}">
+                          <button id="filter-button">Filtrar</button>
+                      </div>
+                      <div id="log-container">
+                          ${filteredLogs.map(log => {
+                              const [date, time, operation] = log.split(', ');
+                              return `<div class="log-entry">
+                                          <span class="log-date">${date.trim()}</span>
+                                          <span class="log-time">${time.trim()}</span>
+                                          <span class="log-operation">${operation.trim()}</span>
+                                      </div>`;
+                          }).join('')}
+                      </div>
+                      <script>
+                          document.getElementById('filter-button').addEventListener('click', () => {
+                              const date = document.getElementById('date-filter').value;
+                              const operation = document.getElementById('operation-filter').value;
+                              window.location.href = '/logs-backup?date=' + date + '&operation=' + encodeURIComponent(operation);
+                          });
+                      </script>
+                  </body>
+                  </html>
+              `;
+              res.send(html); // Enviar el HTML generado
+          }).on('data', chunk => {
+              data += chunk;
+          }).stderr.on('data', chunk => {
+              console.error(`Error: ${chunk}`);
+          });
+      });
+  }).connect(sshConfig);
 });
 
 // Configuración de HTTPS
