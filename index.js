@@ -421,7 +421,7 @@ app.get('/segucom/api/pase_de_lista/validar/:numero_Elemento', async (req, res) 
 app.post('/segucom/api/pase_de_lista/encabezado/:numero_Elemento/:id_Grupo', async (req, res) => {
   const numero_Elemento = req.params.numero_Elemento;
   const id_Grupo = req.params.id_Grupo;
-  await CrearEncabezado(req, res, id_Grupo, numero_Elemento);
+  await CrearEncabezado(req, res, numero_Elemento, id_Grupo);
 
 });
 //http://localhost:3000/segucom/api/pase_de_lista/encabezado/80000/2
