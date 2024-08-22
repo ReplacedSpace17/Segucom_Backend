@@ -28,6 +28,10 @@ function ValidarAdministrador(req, res, numero_Elemento) {
 
 //Insertar un nuevo encabezado de pase de lista
 function CrearEncabezado(req, res, id_Grupo, numero_Elemento ) {
+    console.log('Creando encabezado de pase de lista');
+    //imprimir  id_Grupo, numero_Elemento
+    console.log('id_Grupo: ' + id_Grupo);
+    console.log('numero_Elemento: ' + numero_Elemento);
     var fechaActual = new Date().toISOString().slice(0, 10); 
     
     const query = `
