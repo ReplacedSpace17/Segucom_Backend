@@ -27,7 +27,7 @@ function ValidarAdministrador(req, res, numero_Elemento) {
 }
 
 //Insertar un nuevo encabezado de pase de lista
-function CrearEncabezado(req, res, numero_Elemento, id_Grupo) {
+function CrearEncabezado(req, res, id_Grupo, numero_Elemento ) {
     var fechaActual = new Date().toISOString().slice(0, 10); 
     
     const query = `
