@@ -639,4 +639,17 @@ https://segubackend.com:3000/maps/vigilancia/punto?puntoId=3
   "NumTel": 4791039914
 }
 segubackend.com:3000/segucom/api/maps/elemento/4791039914
+
+
+
+
+
+Boletines
+
+https://segubackend.com/backend/fotos/upload?endpoint=boletines&id_data=17
+https://segubackend.com/backend/fotos/view?category=boletines&id_data=17
+
+Consignas
+https://segubackend.com/backend/fotos/upload?endpoint=consignas&id_data=17
+https://segubackend.com/backend/fotos/view?category=consignas&id_data=17
 */
