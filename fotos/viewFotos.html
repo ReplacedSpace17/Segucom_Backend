@@ -95,26 +95,47 @@ body {
         }
 
         @media (max-width: 768px) {
-            .imageItem {
-                flex: 1 1 100%; /* Full width on small screens */
-            }
+    .imageGrid {
+        display: block; /* Cambia el diseño a lista en pantallas pequeñas */
+    }
 
-            .imageThumbnail {
-                width: 80px;
-                height: 80px;
-            }
+    .imageItem {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px; /* Espacio entre los elementos de la lista */
+        box-shadow: none; /* Elimina el efecto de sombra para una vista más limpia en móviles */
+    }
 
-            .pdfIcon {
-                width: 80px;
-                height: 80px;
-            }
+    .imageThumbnail, .pdfIcon {
+        width: 60px; /* Tamaño reducido del ícono PDF en dispositivos móviles */
+        height: 60px;
+    }
 
-            .btn-back {
-                width: 100%;
-                text-align: center;
-                display: block;
-            }
-        }
+    .pdfIcon {
+        background-size: contain; /* Asegura que el ícono PDF se ajuste al nuevo tamaño */
+    }
+
+    .imageContent {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        flex-direction: row;
+    }
+
+    .imageContent p {
+        margin-left: 10px;
+        font-size: 14px; /* Ajusta el tamaño del texto si es necesario */
+    }
+
+    .btn-back {
+        width: 100%;
+        text-align: center;
+        display: block;
+        padding: 15px 20px; /* Aumenta el área de clic para facilidad de uso */
+        font-size: 16px; /* Ajusta el tamaño del texto en el botón */
+    }
+}
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
