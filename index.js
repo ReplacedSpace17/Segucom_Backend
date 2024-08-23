@@ -211,7 +211,7 @@ app.get('/segucom/api/user/nombre/:numero_elemento', async (req, res) => {
 app.get('/segucom/api/user/boletines/:elemento_Numero', async (req, res) => {
   const elemento_Numero = req.params.elemento_Numero;
   await getNotifications(req, res, elemento_Numero);
-  console.log('Obteniendo notificaciones de boletines para el elemento: ' + elemento_Numero);
+  // console.log('Obteniendo notificaciones de boletines para el elemento: ' + elemento_Numero);
 });
 
 //-------------------------------------------------------------> Endpoints Mapas
