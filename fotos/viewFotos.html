@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galería de Imágenes</title>
     <style>
+
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -27,13 +29,12 @@ h2 {
 }
 
 .imageGrid {
-    display: block; /* Cambia el diseño a lista en pantallas pequeñas */
+    display: block; /* Lista vertical */
 }
 
 .imageItem {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     border: 1px solid #ddd;
     border-radius: 10px;
     overflow: hidden;
@@ -44,33 +45,39 @@ h2 {
     box-shadow: none; /* Elimina el efecto de sombra para una vista más limpia en móviles */
     width: 100%; /* Ocupa todo el ancho disponible */
     box-sizing: border-box;
+    padding: 10px;
 }
 
 .imageItem:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.imageThumbnail, .pdfIcon {
-    width: 60px; /* Tamaño reducido del ícono PDF en dispositivos móviles */
-    height: 60px;
-    object-fit: cover;
-}
-
-.pdfIcon {
-    background-size: contain; /* Asegura que el ícono PDF se ajuste al nuevo tamaño */
+.imageThumbnail {
+    flex: 1;
+    width: 100px; /* Tamaño fijo para las imágenes */
+    height: 100px;
+    object-fit: cover; /* Escalar la imagen para llenar el contenedor */
     border-right: 1px solid #ddd;
 }
 
+.pdfIcon {
+    width: 60px; /* Tamaño fijo para el ícono PDF */
+    height: 60px;
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/1667px-PDF_file_icon.svg.png');
+    background-size: contain;
+    background-position: center;
+    border-right: 1px solid #ddd;
+    margin-right: 10px; /* Espacio entre el ícono y la descripción */
+}
+
 .imageContent {
-    padding: 10px;
-    flex-grow: 1;
+    flex: 1;
     display: flex;
     align-items: center;
 }
 
 .imageContent p {
     margin: 0;
-    margin-left: 10px;
     font-size: 14px;
     color: #333;
 }
