@@ -59,6 +59,13 @@ h2 {
     object-fit: cover; /* Escalar la imagen para llenar el contenedor */
     border-right: 1px solid #ddd;
 }
+.imageContent p {
+    display: none;
+}
+
+.imageItem.pdf .imageContent p {
+    display: block;
+}
 
 .pdfIcon {
     width: 90px; /* Tamaño fijo para el ícono PDF */
@@ -141,47 +148,50 @@ h2 {
         }
 
         function renderImages(images) {
-            const imageGrid = document.querySelector('.imageGrid');
-            imageGrid.innerHTML = ''; // Limpiar grid antes de renderizar
+    const imageGrid = document.querySelector('.imageGrid');
+    imageGrid.innerHTML = ''; // Limpiar grid antes de renderizar
 
-            if (images.length > 0) {
-                images.forEach((image) => {
-                    const imageItem = document.createElement('div');
-                    imageItem.classList.add('imageItem');
+    if (images.length > 0) {
+        images.forEach((image) => {
+            const imageItem = document.createElement('div');
+            imageItem.classList.add('imageItem');
 
-                    if (image.ruta.endsWith('.pdf')) {
-                        imageItem.onclick = () => handlePDFClick(`${backendUrl}/${image.ruta}`);
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('imageContent');
 
-                        const pdfIcon = document.createElement('div');
-                        pdfIcon.classList.add('pdfIcon');
+            const p = document.createElement('p');
+            p.textContent = image.descripcion;
 
-                        const p = document.createElement('p');
-                        p.textContent = image.descripcion;
+            if (image.ruta.endsWith('.pdf')) {
+                imageItem.classList.add('pdf');
+                imageItem.onclick = () => handlePDFClick(`${backendUrl}/${image.ruta}`);
 
-                        imageItem.appendChild(pdfIcon);
-                        imageItem.appendChild(p);
-                    } else {
-                        imageItem.onclick = () => handleImageClick(image.descripcion);
+                const pdfIcon = document.createElement('div');
+                pdfIcon.classList.add('pdfIcon');
 
-                        const img = document.createElement('img');
-                        img.src = `${backendUrl}/${image.ruta}`;
-                        img.alt = image.descripcion;
-
-                        const p = document.createElement('p');
-                         p.textContent = image.descripcion;
-
-                        imageItem.appendChild(img);
-                        imageItem.appendChild(p);
-                    }
-
-                    imageGrid.appendChild(imageItem);
-                });
+                imageItem.appendChild(pdfIcon);
+                contentDiv.appendChild(p);
             } else {
-                const noImagesMsg = document.createElement('p');
-                noImagesMsg.textContent = 'No se encontraron imágenes.';
-                imageGrid.appendChild(noImagesMsg);
+                imageItem.onclick = () => handleImageClick(image.descripcion);
+
+                const img = document.createElement('img');
+                img.src = `${backendUrl}/${image.ruta}`;
+                img.alt = image.descripcion;
+                img.classList.add('imageThumbnail');
+
+                imageItem.appendChild(img);
+                contentDiv.appendChild(p);
             }
-        }
+
+            imageItem.appendChild(contentDiv);
+            imageGrid.appendChild(imageItem);
+        });
+    } else {
+        const noImagesMsg = document.createElement('p');
+        noImagesMsg.textContent = 'No se encontraron imágenes.';
+        imageGrid.appendChild(noImagesMsg);
+    }
+}
 
         function handleBack() {
             if (typeof endpoint === 'undefined') {
@@ -202,7 +212,7 @@ h2 {
 
 <body>
     <div class="viewRegion">
-        <h2>IMÁGENES RECIBIDAS</h2>
+        <h2>ARCHIVOS ADJUNTOS</h2>
         <div class="imageGrid"></div>
 
 
