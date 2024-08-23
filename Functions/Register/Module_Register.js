@@ -507,10 +507,11 @@ function updateNombrePerfilElemento(req, res, nombre, elemento_Numero) {
 async function getInfoNombre(req, res, TelNum) {
     const getNameQuery = `
         SELECT 
-            CONCAT(e.ELEMENTO_NOMBRE, ' ', e.ELEMENTO_PATERNO) AS nombreCompleto
+            CONCAT(e.ELEMENTO_NOMBRE, ' ', e.ELEMENTO_PATERNO, ' ', e.ELEMENTO_MATERNO) AS nombreCompleto
         FROM ELEMENTO e
         WHERE e.ELEMENTO_TELNUMERO = ?
     `;
+    console.log('Obteniendo información del nombre para el número de teléfono:', TelNum);
 
     connection.query(getNameQuery, [TelNum], (error, results) => {
         if (error) {
