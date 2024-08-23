@@ -9,106 +9,103 @@
 
 
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    background-color: #f8f9fa;
-}
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+        }
 
-.viewRegion {
-    padding: 20px;
-    margin: 0 auto;
-    max-width: 1200px;
-}
+        .viewRegion {
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
 
-h2 {
-    margin: 0 0 20px;
-    font-size: 24px;
-    color: #333;
-}
+        h2 {
+            margin: 0 0 20px;
+            font-size: 24px;
+            color: #333;
+        }
 
-.imageGrid {
-    display: block; /* Lista vertical */
-}
+        .imageGrid {
+            display: block; /* Lista vertical */
+        }
 
-.imageItem {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
-    transition: box-shadow 0.3s ease;
-    cursor: pointer;
-    margin-bottom: 10px; /* Espacio entre los elementos de la lista */
-    box-shadow: none; /* Elimina el efecto de sombra para una vista más limpia en móviles */
-    width: 100%; /* Ocupa todo el ancho disponible */
-    box-sizing: border-box;
-    padding: 10px;
-}
+        .imageItem {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            transition: box-shadow 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 10px; /* Espacio entre los elementos de la lista */
+            box-shadow: none; /* Elimina el efecto de sombra para una vista más limpia en móviles */
+            width: 100%; /* Ocupa todo el ancho disponible */
+            box-sizing: border-box;
+            padding: 10px;
+        }
 
-.imageItem:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+        .imageItem:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-.imageThumbnail {
-    flex: 1;
-    width: 100px; /* Tamaño fijo para las imágenes */
-    height: 100px;
-    object-fit: cover; /* Escalar la imagen para llenar el contenedor */
-    border-right: 1px solid #ddd;
-}
-.imageContent p {
-    display: none;
-}
+        .imageThumbnail {
+            flex: 1;
+            width: 120px; /* Tamaño fijo del contenedor cuadrado */
+            height: 120px;
+            object-fit: cover; /* Escalar la imagen para llenar el contenedor */
+            border-right: 1px solid #ddd;
+        }
 
-.imageItem.pdf .imageContent p {
-    display: block;
-}
+        .imageContent {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+        }
 
-.pdfIcon {
-    width: 90px; /* Tamaño fijo para el ícono PDF */
-    height: 90px;
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/1667px-PDF_file_icon.svg.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    border-right: 1px solid #ddd;
-    margin-right: 30px; /* Espacio entre el ícono y la descripción */
-}
+        .imageContent p {
+            display: none;
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+        }
 
-.imageContent {
-    flex: 1;
-    display: flex;
-    align-items: center;
-}
+        .imageItem.pdf .imageContent p {
+            display: block;
+        }
 
-.imageContent p {
-    display: none;
-    margin: 0;
-    font-size: 14px;
-    color: #333;
-}
+        .pdfIcon {
+            width: 120px; /* Tamaño fijo para el ícono PDF */
+            height: 120px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/1667px-PDF_file_icon.svg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-right: 1px solid #ddd;
+            margin-right: 30px; /* Espacio entre el ícono y la descripción */
+        }
 
-.btn-back {
-    width: 100%;
-    text-align: center;
-    display: block;
-    padding: 15px 20px;
-    font-size: 16px;
-    background-color: #6c757d;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
+        .btn-back {
+            width: 100%;
+            text-align: center;
+            display: block;
+            padding: 15px 20px;
+            font-size: 16px;
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-.btn-back:hover {
-    background-color: #5a6268;
-}
-
+        .btn-back:hover {
+            background-color: #5a6268;
+        }
 
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
