@@ -327,6 +327,15 @@ app.get('/segucom/web/administrador/chats', (req, res) => {
 //http://segubackend:3000/segucom/web/administrador/chats?elementoId=80000
 
 //-------------------------------------------------------------> Rutas de fotos
+
+//boletines
+//  https://segubackend.com/backend/fotos/upload?endpoint=boletines&id_data=1
+//  https://segubackend.com/backend/fotos/view?endpoint=boletines&id_data=1
+
+//consignas
+//  https://segubackend.com/backend/fotos/upload?endpoint=consignas&id_data=1
+//  https://segubackend.com/backend/fotos/view?endpoint=consignas&id_data=1
+
 // Ruta para enviar
 app.get('/fotos/upload', (req, res) => {
   res.sendFile(path.join(__dirname, 'fotos', 'uploadImage.html'));
