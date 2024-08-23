@@ -91,40 +91,46 @@
             background-color: #5a6268;
         }
 
-        /* Media Query para pantallas grandes */
-        @media (min-width: 768px) {
-            .imageGrid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 20px;
-            }
+       /* Media Query para pantallas grandes */
+@media (min-width: 768px) {
+    .imageGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
 
-            .imageItem {
-                flex-direction: column;
-                align-items: stretch;
-                margin-bottom: 0; /* Elimina el margen inferior en el grid */
-            }
+    .imageItem {
+        flex-direction: column;
+        align-items: center; /* Centrar el contenido del elemento */
+        margin-bottom: 0; /* Elimina el margen inferior en el grid */
+    }
 
-            .pdfIcon {
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid #ddd;
-                margin-right: 0;
-                margin-bottom: 10px;
-            }
+    .pdfIcon {
+        width: 100px; /* Ajuste del tamaño fijo */
+        height: 100px;
+        background-size: contain;
+        background-position: center;
+        border-bottom: 1px solid #ddd;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
 
-            .pdfDescription {
-                padding-left: 0;
-                padding-top: 10px;
-                text-align: center;
-            }
+    .pdfDescription {
+        padding-left: 0;
+        padding-top: 10px;
+        text-align: center;
+        white-space: nowrap; /* Evitar que el texto salte a la siguiente línea */
+        overflow: hidden; /* Esconder el texto que excede el contenedor */
+        text-overflow: ellipsis; /* Mostrar "..." al final del texto que se corta */
+        max-width: 100%; /* Limitar la descripción al ancho del contenedor */
+    }
 
-            .imageThumbnail {
-                width: 100%;
-                height: auto;
-            }
-        }
+    .imageThumbnail {
+        width: 100%;
+        height: auto;
+    }
+}
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
