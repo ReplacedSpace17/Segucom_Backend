@@ -90,6 +90,41 @@
         .btn-back:hover {
             background-color: #5a6268;
         }
+
+        /* Media Query para pantallas grandes */
+        @media (min-width: 768px) {
+            .imageGrid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .imageItem {
+                flex-direction: column;
+                align-items: stretch;
+                margin-bottom: 0; /* Elimina el margen inferior en el grid */
+            }
+
+            .pdfIcon {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .pdfDescription {
+                padding-left: 0;
+                padding-top: 10px;
+                text-align: center;
+            }
+
+            .imageThumbnail {
+                width: 100%;
+                height: auto;
+            }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
