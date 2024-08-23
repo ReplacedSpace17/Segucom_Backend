@@ -155,7 +155,7 @@ h2 {
                         pdfIcon.classList.add('pdfIcon');
 
                         const p = document.createElement('p');
-                        // p.textContent = image.descripcion;
+                        p.textContent = image.descripcion;
 
                         imageItem.appendChild(pdfIcon);
                         imageItem.appendChild(p);
@@ -166,8 +166,8 @@ h2 {
                         img.src = `${backendUrl}/${image.ruta}`;
                         img.alt = image.descripcion;
 
-                        const p = document.createElement('p');
-                        p.textContent = image.descripcion;
+                       // const p = document.createElement('p');
+                         //p.textContent = image.descripcion;
 
                         imageItem.appendChild(img);
                         imageItem.appendChild(p);
