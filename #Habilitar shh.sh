@@ -32,7 +32,7 @@ s3guC0m@7am
 
 #ss externo
 ssh sermex-segu@segubackend.com -p 22
-S3rs6uc0
+ssh sermex-segu@segubackend.com -p 22
 
 ssh sermex-segu2@segubackend.com -p 4040
 S3rs6uc0

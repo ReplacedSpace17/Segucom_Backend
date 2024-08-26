@@ -489,6 +489,7 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const elemento = parseInt(urlParams.get('elementoId'));
+    const idGrupo = parseInt(urlParams.get('idGrupo'));
     let NombreGrupo = '';
     let NombreRemitente = '';
     let ID_Grupo = '';
@@ -514,7 +515,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-      axios.get(`${backend}/segucomunication/api/messagesGroupWEB/${elemento}`)
+      axios.get(`${backend}/segucomunication/api/messagesGroupWEB/${elemento}/${idGrupo}`)
         .then(response => {
           const data = response.data;
           console.log(data);
