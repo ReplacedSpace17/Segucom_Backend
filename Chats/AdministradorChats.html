@@ -493,6 +493,7 @@
     let NombreGrupo = '';
     let NombreRemitente = '';
     let ID_Grupo = '';
+    const members = [];
 
     const backend = 'https://segubackend.com';
     // const backend = 'https://192.168.1.90:3001';
@@ -546,6 +547,23 @@
           console.error('Error:', error);
         });
 
+
+         // Realiza una solicitud para obtener los miembros del grupo
+  axios.get(`${backend}/segucomunication/api/members/${idGrupo}`)
+    .then(response => {
+      const membersData = response.data;
+      console.log('Miembros del grupo:', membersData);
+
+      // Guarda los miembros en la constante
+      members.push(...membersData);
+
+      // Puedes hacer algo con los miembros aquí si es necesario
+    })
+    .catch(error => {
+      console.error('Error al obtener miembros:', error);
+    });
+
+    
       document.addEventListener('click', handleClickOutside);
       document.getElementById('sendMessageButton').addEventListener('click', handleSendMessage);
       document.getElementById('uploadImageButton').addEventListener('click', handleImageUpload);
