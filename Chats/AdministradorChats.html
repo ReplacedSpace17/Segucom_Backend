@@ -577,17 +577,20 @@
 
     function showMembersAlert() {
   // Construye el contenido HTML para la alerta
+  //
   const memberList = members.map(member => 
     `<li>${member.NOMBRE_COMPLETO} (Número: ${member.ELEMENTO_NUMERO})</li>`
   ).join('');
 
   Swal.fire({
     title: 'Miembros del Grupo',
-    html: `<ul>${memberList}</ul>`,
+    html: `<ul style="list-style-type: none; padding-left: 0; text-align: left;">${memberList}</ul>`,
     icon: 'info',
     confirmButtonText: 'Aceptar'
   });
 }
+
+
 
     function populateGroupList(groups) {
       const groupList = document.getElementById('groupList');
