@@ -446,6 +446,8 @@
       <div id="HeaderChat" class="HeaderChat" style="display: none;">
         <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Group Icon" class="group-icon" />
         <h2 id="titleChat" class="titleChat"></h2>
+        <input type="button" value="miembros" onclick="showMembersAlert"/>
+        
       </div>
       <ul id="chatContainer" ref="chatContainerRef">
         
@@ -563,7 +565,7 @@
       console.error('Error al obtener miembros:', error);
     });
 
-    
+
       document.addEventListener('click', handleClickOutside);
       document.getElementById('sendMessageButton').addEventListener('click', handleSendMessage);
       document.getElementById('uploadImageButton').addEventListener('click', handleImageUpload);
@@ -571,6 +573,21 @@
       document.getElementById('fileInput').addEventListener('change', handleFileInputChange);
       document.getElementById('fileInputVIDEO').addEventListener('change', handleFileInputChangeVIDEO);
     });
+
+
+    function showMembersAlert() {
+  // Construye el contenido HTML para la alerta
+  const memberList = members.map(member => 
+    `<li>${member.NOMBRE_COMPLETO} (Número: ${member.ELEMENTO_NUMERO})</li>`
+  ).join('');
+
+  Swal.fire({
+    title: 'Miembros del Grupo',
+    html: `<ul>${memberList}</ul>`,
+    icon: 'info',
+    confirmButtonText: 'Aceptar'
+  });
+}
 
     function populateGroupList(groups) {
       const groupList = document.getElementById('groupList');
