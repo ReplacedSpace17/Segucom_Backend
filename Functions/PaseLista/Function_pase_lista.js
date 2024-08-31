@@ -26,28 +26,44 @@ function ValidarAdministrador(req, res, numero_Elemento) {
     });
 }
 
-//Insertar un nuevo encabezado de pase de lista
 function CrearEncabezado(req, res, id_Grupo, numero_Elemento ) {
     console.log('Creando encabezado de pase de lista');
-    //imprimir  id_Grupo, numero_Elemento
     console.log('id_Grupo: ' + id_Grupo);
     console.log('numero_Elemento: ' + numero_Elemento);
-    var fechaActual = new Date().toISOString().slice(0, 10); 
-    
-    const query = `
-        INSERT INTO PASE_ENCABEZADO (PASENCA_FEC, PASENCA_FECHA, PASE_ID, PASE_ADMON)
-        VALUES (?, ?, ?, ?)
+    var fechaActual = new Date().toISOString().slice(0, 10);
+
+    // Consulta para verificar si ya existe un registro con el mismo grupo, fecha y elemento
+    const checkQuery = `
+        SELECT COUNT(*) as count 
+        FROM PASE_ENCABEZADO 
+        WHERE PASENCA_FEC = ? AND PASE_ID = ? AND PASE_ADMON = ?
     `;
-    
-    connection.query(query, [fechaActual, fechaActual, id_Grupo, numero_Elemento], (error, results) => {
+
+    connection.query(checkQuery, [fechaActual, id_Grupo, numero_Elemento], (error, results) => {
         if (error) {
             res.status(500).send(error);
+        } else if (results[0].count > 0) {
+            // Si ya existe un registro con los mismos datos, retornamos un error
+            res.status(400).json({ message: 'Ya existe un pase de lista para este grupo, fecha y elemento.' });
         } else {
-            console.log('Encabezado de pase de lista creado correctamente: ' + results.insertId);
-            res.json({ PASENCA_ID: results.insertId });
+            // Si no existe, procedemos a insertar el nuevo registro
+            const insertQuery = `
+                INSERT INTO PASE_ENCABEZADO (PASENCA_FEC, PASENCA_FECHA, PASE_ID, PASE_ADMON)
+                VALUES (?, ?, ?, ?)
+            `;
+
+            connection.query(insertQuery, [fechaActual, fechaActual, id_Grupo, numero_Elemento], (error, results) => {
+                if (error) {
+                    res.status(500).send(error);
+                } else {
+                    console.log('Encabezado de pase de lista creado correctamente: ' + results.insertId);
+                    res.json({ PASENCA_ID: results.insertId });
+                }
+            });
         }
     });
 }
+
 
 //verificar si el elemento pertenece al grupo que se esta realizando el pase de lista
 function ValidarElementoGrupo(req, res, numero_Elemento, id_Grupo, id_Encabezado) {
