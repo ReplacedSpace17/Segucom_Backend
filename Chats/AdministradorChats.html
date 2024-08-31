@@ -577,18 +577,28 @@
 
     function showMembersAlert() {
   // Construye el contenido HTML para la alerta
-  //
   const memberList = members.map(member => 
     `<li>${member.NOMBRE_COMPLETO} (Número: ${member.ELEMENTO_NUMERO})</li>`
   ).join('');
 
   Swal.fire({
     title: 'Miembros del Grupo',
-    html: `<ul style="list-style-type: none; padding-left: 0; text-align: left;">${memberList}</ul>`,
+    html: `
+      <div style="max-height: 300px; overflow-y: auto;">
+        <ul style="list-style-type: none; padding-left: 0; text-align: left;">
+          ${memberList}
+        </ul>
+      </div>
+    `,
     icon: 'info',
-    confirmButtonText: 'Aceptar'
+    confirmButtonText: 'Aceptar',
+    customClass: {
+      container: 'swal-container'
+    },
+    width: 'auto'  // Ajusta el ancho de la alerta según el contenido
   });
 }
+
 
 
 
