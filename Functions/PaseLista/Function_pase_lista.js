@@ -44,6 +44,7 @@ function CrearEncabezado(req, res, id_Grupo, numero_Elemento ) {
             res.status(500).send(error);
         } else if (results[0].count > 0) {
             // Si ya existe un registro con los mismos datos, retornamos un error
+            console.log('Ya existe un pase de lista para este grupo, fecha y elemento.');
             res.status(400).json({ message: 'Ya existe un pase de lista para este grupo, fecha y elemento.' });
         } else {
             // Si no existe, procedemos a insertar el nuevo registro
