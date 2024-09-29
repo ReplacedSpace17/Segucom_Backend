@@ -33,8 +33,15 @@ s3guC0m@7am
 #ss externo
 ssh sermex-segu@segubackend.com -p 22
 ssh sermex-segu@segubackend.com -p 22
+ssh sermex-segu@189.162.111.218 -p 22
+
+#server 2
+ssh sermex-segu2@segubackend.com -p 4040
+S3rs6uc0
 
 ssh sermex-segu2@segubackend.com -p 4040
+ssh sermex-segu2@189.162.181.25 -p 4040
+ssh sermex-segu@189.162.181.25 -p 22
 S3rs6uc0
 
 #ss interno
