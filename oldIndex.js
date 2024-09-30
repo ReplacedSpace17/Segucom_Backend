@@ -14,9 +14,7 @@ const http = require('http');
 const app = express();
 const port = 3000;
 const jwt = require('jsonwebtoken');
-const cluster = require('cluster')
-const os = require('os');
-const numCPUs = os.cpus().length;
+
 const { Client } = require('ssh2');
 
 // Configuración de CORS
@@ -593,24 +591,9 @@ https.createServer(httpsOptions, app).listen(port, () => {
 
 
 
-if (cluster.isMaster) {
-  console.log(`El maestro ${process.pid} está corriendo`);
-
-  // Crea un worker por cada núcleo disponible
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
-
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`Worker ${worker.process.pid} murió. Creando un nuevo worker...`);
-    cluster.fork();
-  });
-} else {
-  // Cada worker comparte el servidor HTTP
-  http.createServer(app).listen(port, () => {
-    console.log(`Worker ${process.pid} corriendo en http://0.0.0.0:${port}`);
-  });
-}
+http.createServer(app).listen(port, () => {
+  console.log(`Servidor HTTP corriendo en http://0.0.0.0:${port}`);
+});
 
 
 
