@@ -40,8 +40,8 @@ ssh sermex-segu2@segubackend.com -p 4040
 S3rs6uc0
 
 ssh sermex-segu2@segubackend.com -p 4040
-ssh sermex-segu2@189.162.181.25 -p 4040
-ssh sermex-segu@189.162.181.25 -p 22
+ssh sermex-segu2@189.162.92.220 -p 4040
+ssh sermex-segu@189.162.92.220 -p 22
 S3rs6uc0
 
 #ss interno
@@ -50,7 +50,7 @@ S3rs6uc0
 
 ##actualizar el back
 git pull 
- sudo systemctl restart backendsegucom.service
+ sudo systemctl restart backendsegucom.servicew
  sudo systemctl stop backendsegucom.service
  sudo systemctl start backendsegucom.service
  sudo systemctl status backendsegucom.service
@@ -68,6 +68,7 @@ sudo systemctl restart segucomunication
 sudo nano /etc/nginx/sites-available/default
 sudo nginx -t
 sudo systemctl restart nginx
+sudo systemctl status nginx
 
  #invitados c5
 9f@5i2H&7LQA

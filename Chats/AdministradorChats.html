@@ -634,9 +634,12 @@
         dateContainer.className = 'containerDate';
         dateContainer.innerHTML = `<p class="date-label">${date}</p>`;
         chatContainer.appendChild(dateContainer);
-
+        
         messages.forEach(message => {
           const li = document.createElement('li');
+
+          console.log(message);
+
           li.className = `message ${message.ELEMENTO_NUMERO.toString() === elemento.toString() ? 'message-right' : 'message-left'}`;
           li.innerHTML = `
                         <div class="message-bubble">
