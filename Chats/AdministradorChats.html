@@ -709,7 +709,17 @@
 
     function handleReceiveMessage(data) {
   console.log('Nuevo mensaje recibido:', data);
- 
+
+  // Verifica si el NOMBRE_REMITENTE está vacío
+  if (data.NOMBRE_REMITENTE === "" || !data.NOMBRE_REMITENTE) {
+    // Busca en la lista de miembros el que coincida con REMITENTE (ELEMENTO_NUMERO)
+    const miembro = membersData.find(miembro => miembro.ELEMENTO_NUMERO === data.REMITENTE);
+    
+    // Si se encuentra el miembro, asigna su NOMBRE_COMPLETO como NOMBRE_REMITENTE
+    if (miembro) {
+      data.NOMBRE_REMITENTE = miembro.NOMBRE_COMPLETO;
+    }
+  }
 
   // Verifica si el mensaje ya está en la lista de mensajes antes de agregarlo
   const mensajeExistente = selectedGroup.MENSAJES.find(msg => msg.MENSAJE_ID === data.MENSAJE_ID);
@@ -719,6 +729,7 @@
     renderMessages(selectedGroup);
   }
 }
+
 
 
     function handleSendMessage() {
