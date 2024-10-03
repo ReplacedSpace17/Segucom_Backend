@@ -713,7 +713,7 @@
   // Verifica si el NOMBRE_REMITENTE está vacío
   if (data.NOMBRE_REMITENTE === "" || !data.NOMBRE_REMITENTE) {
     // Busca en la lista de miembros el que coincida con REMITENTE (ELEMENTO_NUMERO)
-    const miembro = membersData.find(miembro => miembro.ELEMENTO_NUMERO === data.REMITENTE);
+    const miembro = members.find(miembro => miembro.ELEMENTO_NUMERO === data.REMITENTE);
     
     // Si se encuentra el miembro, asigna su NOMBRE_COMPLETO como NOMBRE_REMITENTE
     if (miembro) {
@@ -729,6 +729,7 @@
     renderMessages(selectedGroup);
   }
 }
+
 
 
 
