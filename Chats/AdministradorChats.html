@@ -639,6 +639,15 @@
           const li = document.createElement('li');
 
           console.log(message);
+          
+          if (message.NOMBRE_REMITENTE === "") {
+        const foundMessage = group.MENSAJES.find(
+          msg => msg.ELEMENTO_NUMERO === message.ELEMENTO_NUMERO && msg.NOMBRE_REMITENTE !== ""
+        );
+        if (foundMessage) {
+          message.NOMBRE_REMITENTE = foundMessage.NOMBRE_REMITENTE; // Asignar el nombre encontrado
+        }
+      }
 
           li.className = `message ${message.ELEMENTO_NUMERO.toString() === elemento.toString() ? 'message-right' : 'message-left'}`;
           li.innerHTML = `

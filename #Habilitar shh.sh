@@ -50,7 +50,7 @@ S3rs6uc0
 
 ##actualizar el back
 git pull 
- sudo systemctl restart backendsegucom.servicew
+ sudo systemctl restart backendsegucom.service
  sudo systemctl stop backendsegucom.service
  sudo systemctl start backendsegucom.service
  sudo systemctl status backendsegucom.service
