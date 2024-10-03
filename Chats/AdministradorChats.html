@@ -541,7 +541,7 @@
           console.log("Elemento: " + data[0].ELEMENTO_NUM);
           
           // Conectar al socket y luego unir al grupo
-         // socket.connect();
+          socket.connect();
 
           socket.on('connect', () => {
             socket.emit('setId', data[0].ELEMENTO_NUM);
