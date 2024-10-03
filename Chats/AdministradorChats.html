@@ -708,13 +708,17 @@
 
 
     function handleReceiveMessage(data) {
-      console.log('Nuevo mensaje recibido:', data);
-      showToast('Nuevo mensaje recibido');
-      if (selectedGroup) {
-        selectedGroup.MENSAJES = [...selectedGroup.MENSAJES, data];
-        renderMessages(selectedGroup);
-      }
-    }
+  console.log('Nuevo mensaje recibido:', data);
+  showToast('Nuevo mensaje recibido');
+
+  // Verifica si el mensaje ya está en la lista de mensajes antes de agregarlo
+  const mensajeExistente = selectedGroup.MENSAJES.find(msg => msg.MENSAJE_ID === data.MENSAJE_ID);
+  if (!mensajeExistente) {
+    selectedGroup.MENSAJES.push(data);
+    renderMessages(selectedGroup);
+  }
+}
+
 
     function handleSendMessage() {
       const messageInput = document.getElementById('messageInput');
