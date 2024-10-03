@@ -709,14 +709,17 @@
 
     function handleReceiveMessage(data) {
   console.log('Nuevo mensaje recibido:', data);
+  console.log('Buscando en la lista de miembros:', members);
 
   // Verifica si el NOMBRE_REMITENTE está vacío
   if (data.NOMBRE_REMITENTE === "" || !data.NOMBRE_REMITENTE) {
+    console.log('El NOMBRE_REMITENTE está vacío o no está definido.');
     // Busca en la lista de miembros el que coincida con REMITENTE (ELEMENTO_NUMERO)
-    const miembro = members.find(miembro => miembro.ELEMENTO_NUMERO === data.REMITENTE);
+    const miembro = members.find(miembro => miembro.ELEMENTO_NUMERO.toString() === data.REMITENTE.toString());
     
     // Si se encuentra el miembro, asigna su NOMBRE_COMPLETO como NOMBRE_REMITENTE
     if (miembro) {
+      console.log('Miembro encontrado:', miembro);
       data.NOMBRE_REMITENTE = miembro.NOMBRE_COMPLETO;
     }
   }
