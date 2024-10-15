@@ -481,10 +481,18 @@ app.get('/test', (req, res) => {
   res.send('¡Hola, mundo!');
 });
 
+// ESTADISTICAS DEL SERVIDOR
+app.get('/server/monitor', (req, res) => {
+  //res.sendFile(__dirname + '/public/estadisticasServer.html');
+  res.sendFile(path.join(__dirname, 'Server', 'estadisticasServer.html'));
+  
+});
+
 // Ruta de inicio
 app.get('/', (req, res) => {
   res.send('Backend raiz');
 });
+
 
 // Configuración de la conexión SSH
 const sshConfig = {
