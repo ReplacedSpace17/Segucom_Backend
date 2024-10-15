@@ -482,7 +482,7 @@ app.get('/test', (req, res) => {
 });
 
 // ESTADISTICAS DEL SERVIDOR
-app.get('/server/monitor', (req, res) => {
+app.get('/server-monitor', (req, res) => {
   //res.sendFile(__dirname + '/public/estadisticasServer.html');
   res.sendFile(path.join(__dirname, 'Server', 'estadisticasServer.html'));
   
