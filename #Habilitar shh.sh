@@ -46,7 +46,7 @@ S3rs6uc0
 
 #ss interno
 ssh sermex-segu@192.168.1.71 -p 22
-S3rs6uc0
+sudo systemctl restart segucomunication
 
 ##actualizar el back
 git pull 

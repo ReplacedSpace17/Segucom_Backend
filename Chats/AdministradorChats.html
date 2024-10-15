@@ -773,6 +773,7 @@
           if (response.status === 200) {
             sendMessageSOCKETREALTIME(requestBody);
             // Añadir el mensaje enviado a la lista de mensajes y renderizarlo
+            
             selectedGroup.MENSAJES.push(requestBody);
             renderMessages(selectedGroup);
             messageInput.value = '';
