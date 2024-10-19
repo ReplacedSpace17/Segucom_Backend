@@ -269,7 +269,7 @@
 
 
     const restartServerButton = () => {
-    fetch(`${backend}reboot/confirm/server`, {
+    fetch(`${backend}/reboot/confirm/server`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -308,7 +308,7 @@
 
 
 const restartSegucomunication = () => {
-    fetch(`${backend}service/confirm/restart/segucomunications`, {
+    fetch(`${backend}/service/confirm/restart/segucomunications`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ const restartSegucomunication = () => {
 };
 
 const restartNginxx = () => {
-    fetch(`${backend}service/confirm/restart/nginx`, {
+    fetch(`${backend}/service/confirm/restart/nginx`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -384,7 +384,7 @@ const restartNginxx = () => {
 };
 
 const restartDatabase = () => {
-    fetch(`${backend}service/confirm/restart/database`, {
+    fetch(`${backend}/service/confirm/restart/database`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -433,19 +433,19 @@ const getStatusService = async () => {
     
   try {
     // Fetch para el servicio segucom-backend
-    const backendStatus = await fetch(`${backend}service/confirm/status/segucom-backend`);
+    const backendStatus = await fetch(`${backend}/service/confirm/status/segucom-backend`);
     service_segubackend = backendStatus.status === 200;
 
     // Fetch para el servicio segucomunications
-    const segucomunicationsStatus = await fetch(`${backend}service/confirm/status/segucomunications`);
+    const segucomunicationsStatus = await fetch(`${backend}/service/confirm/status/segucomunications`);
     service_segucomunications = segucomunicationsStatus.status === 200;
 
     // Fetch para el servicio nginx
-    const nginxStatus = await fetch(`${backend}service/confirm/status/nginx`);
+    const nginxStatus = await fetch(`${backend}/service/confirm/status/nginx`);
     service_nginx = nginxStatus.status === 200;
 
     // Fetch para el servicio database
-    const databaseStatus = await fetch(`${backend}service/confirm/status/database`);
+    const databaseStatus = await fetch(`${backend}/service/confirm/status/database`);
     service_database = databaseStatus.status === 200;
 
      // Actualizar los estados en el HTML
@@ -474,7 +474,7 @@ const getStatusService = async () => {
 
 
 const restartBackend = () => {
-    fetch(`${backend}service/confirm/restart/segucom-backend`, {
+    fetch(`${backend}/service/confirm/restart/segucom-backend`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
