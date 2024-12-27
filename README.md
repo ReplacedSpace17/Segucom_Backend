@@ -16,6 +16,7 @@ Table Personal {
   Clave varchar
   
 }
+dsds
 
 
 Ref: Personal.PersonalID < Ubicaciones.PersonalID// many-to-one
