@@ -9,7 +9,7 @@ sudo cp /home/sermex-segu/BackendSegucom/certificates/PrivateKey.pem /etc/nginx/
 sudo cp /home/sermex-segu/BackendSegucom/certificates/segubackend.com_2024.crt /etc/nginx/ssl/
 
 #crear el archivo de configuracion
-sudo nano /etc/nginx/sites-available/segubackend
+sudo nano /etc/nginx/sites-available/default
 
 #copiar el contenido del archivo de configuracion
 server {

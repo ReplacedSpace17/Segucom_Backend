@@ -605,7 +605,7 @@ if (cluster.isMaster) {
   console.log(`El maestro ${process.pid} está corriendo`);
 
   // Crea un worker por cada núcleo disponible
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < numCPUs -1; i++) {
     cluster.fork();
   }
 
